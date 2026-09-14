@@ -28,8 +28,8 @@ describe TeamsStrava::Bot do
         allow(TeamsStrava::Service.instance).to receive(:create!)
       end
 
-      it 'creates a team and does not reply' do
-        expect(ctx).not_to receive(:reply)
+      it 'creates a team and does not post' do
+        expect(ctx).not_to receive(:post)
         subject.send(:handle_conversation_update!, ctx)
         expect(Team.where(team_id: 'team-id').first).not_to be_nil
       end
@@ -39,8 +39,8 @@ describe TeamsStrava::Bot do
       let(:activity) { activity_for(conversation_type: 'personal', members_added: [{ id: 'bot-id' }]) }
       let(:ctx) { double('ctx', activity:) }
 
-      it 'does not create a team and replies with an error' do
-        expect(ctx).to receive(:reply).with('Strata works best in a regular Teams channel. Add me to a team to get started.')
+      it 'does not create a team and posts an error' do
+        expect(ctx).to receive(:post).with('Strata works best in a regular Teams channel. Add me to a team to get started.')
         subject.send(:handle_conversation_update!, ctx)
         expect(Team.count).to eq 0
       end
@@ -50,8 +50,8 @@ describe TeamsStrava::Bot do
       let(:activity) { activity_for(conversation_type: 'personal', members_added: [{ id: 'someone-else' }]) }
       let(:ctx) { double('ctx', activity:) }
 
-      it 'does not reply' do
-        expect(ctx).not_to receive(:reply)
+      it 'does not post' do
+        expect(ctx).not_to receive(:post)
         subject.send(:handle_conversation_update!, ctx)
       end
     end

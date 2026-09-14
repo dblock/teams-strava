@@ -117,7 +117,10 @@ module TeamsStrava
                   "team=#{activity.channel_data.team&.id} conversation=#{activity.conversation.id} " \
                   "members_added=#{activity.raw['membersAdded']}"
       team = Team.install_or_update!(ctx)
-      ctx.reply('Strata works best in a regular Teams channel. Add me to a team to get started.') if team.nil? && bot_added?(activity)
+      # A plain post, not a reply/quote: conversationUpdate isn't a real
+      # message, so there's nothing to quote and Teams rejects a replyToId
+      # pointing at a non-message activity.
+      ctx.post('Strata works best in a regular Teams channel. Add me to a team to get started.') if team.nil? && bot_added?(activity)
     rescue StandardError => e
       logger.error e
       NewRelic::Agent.notice_error(e)

@@ -93,12 +93,17 @@ module TeamsStrava
     end
 
     def handle_message!(ctx)
+      activity = ctx.activity
+      logger.info "[bot] message from #{activity.from.name} (#{activity.from.id}) " \
+                  "in team=#{activity.channel_data.team&.id} conversation=#{activity.conversation.id}: " \
+                  "#{activity.text.to_s.inspect}"
       request = TeamsStrava::Commands::Request.new(ctx)
       return unless request.command?
 
       result = TeamsStrava::Commands.invoke!(request)
       ctx.reply(result) if result
     rescue TeamsStrava::Error => e
+      logger.warn "[bot] error handling message: #{e.message}"
       ctx.reply(e.message)
     rescue StandardError => e
       logger.error e
@@ -107,10 +112,22 @@ module TeamsStrava
     end
 
     def handle_conversation_update!(ctx)
-      Team.install_or_update!(ctx)
+      activity = ctx.activity
+      logger.info "[bot] conversation_update event=#{activity.channel_data.event_type} " \
+                  "team=#{activity.channel_data.team&.id} conversation=#{activity.conversation.id} " \
+                  "members_added=#{activity.raw['membersAdded']}"
+      team = Team.install_or_update!(ctx)
+      ctx.reply('Strata works best in a regular Teams channel. Add me to a team to get started.') if team.nil? && bot_added?(activity)
     rescue StandardError => e
       logger.error e
       NewRelic::Agent.notice_error(e)
+    end
+
+    # True when the bot itself is among the newly added members, i.e. this
+    # conversation_update represents an app install (rather than, say,
+    # another user joining an existing conversation).
+    def bot_added?(activity)
+      Array(activity.raw['membersAdded']).any? { |member| member['id'] == activity.recipient.id }
     end
 
     def handle_error(err)

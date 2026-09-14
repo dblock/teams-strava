@@ -151,6 +151,7 @@ RSpec/NamedSubject:
   Exclude:
     - 'spec/api/documentation_spec.rb'
     - 'spec/teams-strava/app_spec.rb'
+    - 'spec/teams-strava/bot_spec.rb'
 
 # Offense count: 223
 # Configuration parameters: AllowedGroups.
@@ -189,6 +190,7 @@ RSpec/VerifiedDoubles:
   Exclude:
     - 'spec/models/activity_spec.rb'
     - 'spec/support/teams/command.rb'
+    - 'spec/teams-strava/bot_spec.rb'
 
 # Offense count: 1
 # Configuration parameters: MinBranchesCount.

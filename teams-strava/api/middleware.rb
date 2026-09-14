@@ -38,7 +38,17 @@ module Api
         use Rack::ServerPages
 
         map '/api/messages' do
-          run TeamsStrava::Bot.instance.to_rack
+          run lambda { |env|
+            # Rack::Builder#map strips the mounted prefix from PATH_INFO
+            # (moving it to SCRIPT_NAME), but teams_rb's rack app matches
+            # requests by their full, un-stripped path. Restore it before
+            # handing off.
+            env['PATH_INFO'] = '/api/messages'
+            body = env['rack.input'].read.to_s
+            env['rack.input'] = StringIO.new(body)
+            Api::Middleware.logger.info "[bot] #{env['REQUEST_METHOD']} #{env['PATH_INFO']}: #{body}"
+            TeamsStrava::Bot.instance.to_rack.call(env)
+          }
         end
 
         map '/' do

@@ -1,0 +1,55 @@
+<html lang="en">
+  <head>
+    <title>Strata: Connect to Strava</title>
+    <%= partial 'public/partials/_head.html' %>
+    <meta name="robots" content="noindex, nofollow">
+    <%
+      user = User.where(id: request.params['state']).first
+    %>
+  </head>
+  <body style='text-align: center'>
+    <p style='margin: 50px;'>
+      <a href='/'><img src='img/icon.png' width='120px' alt="Strata logo"></a>
+    </p>
+    <p>
+      <h1>Strata: Connect to Strava</h1>
+    </p>
+    <p id='messages' />
+    <p id='connect'>
+      <p>
+        <div class='small'>
+          Questions? Contact dblock[at]vestris[dot]com or DM <a href='https://twitter.com/playplayio'>@playplayio</a>.
+        </div>
+      </p>
+      <script>
+        $(document).ready(function() {
+          <% user = User.where(id: request.params['state']).first %>
+
+          var data = {
+            code: "<%= request.params['code'] %>"
+          };
+
+          var user = {
+            id: '<%= user && user.id %>',
+            name: '<%= user && user.user_name %>'
+          }
+
+          if (user.id && data.code) {
+            TeamsStrava.message('Connecting <b>' + user.name + '</b> to Strava. This will take a minute.');
+            $.ajax({
+              type: 'PUT',
+              url: '/api/users/' + user.id,
+              data: data,
+              success: function(data) {
+                TeamsStrava.message('Successfully connected <b>' + data.user_name + '</b> to Strava.<br>I will not post any private activities, use <b>@Strata set private on</b> to toggle that, and <b>@Strata help</b> for other options.<br><br>You can now return to Microsoft Teams.');
+              },
+              error: TeamsStrava.error
+            });
+          } else {
+            TeamsStrava.errorMessage('Missing or invalid parameters.');
+          }
+        });
+      </script>
+    </p>
+  </body>
+</html>

@@ -1,0 +1,95 @@
+<html lang="en">
+  <head>
+    <title>Strata: Subscribe</title>
+    <%= partial 'public/partials/_head.html.erb' %>
+    <meta name="robots" content="noindex, nofollow">
+    <script src='https://checkout.stripe.com/checkout.js'></script>
+    <link rel='stylesheet' href='https://checkout.stripe.com/v3/checkout/button.css'></link>
+  </head>
+  <body>
+    <p class='icon'>
+      <a href='/'><img src='img/icon.png' alt="Strata logo"></a>
+    </p>
+    <p>
+      <h1>Strata: Subscribe</h1>
+    </p>
+    <p id='messages' />
+    <p id='subscribe'>
+      <button id='subscribeButton' class='stripe-button-el'>
+          <span style='display: block; min-height: 30px;'>Pay $19.99 with Card</span>
+      </button>
+      <p>
+        <img src='/img/stripe.png' width='119' height='26' alt="Powered by Stripe"></img>
+      </p>
+      <script>
+        $(document).ready(function() {
+
+          <% team = Team.where(_id: request.params['team_id']).first %>
+
+          var team = {
+            id: '<%= team && team.id %>',
+            team_id: '<%= team && team.team_id %>',
+            team_name: '<%= team && team.team_name.gsub(/[^0-9a-z ]/i, '') %>',
+            subscribed: <%= !!(team && team.subscribed) %>,
+          }
+
+          if (team.subscribed) {
+            TeamsStrava.message('Team <b>' + team.team_name + '</b> is already subscribed, thank you for your support.');
+            $('#subscribeButton').remove();
+          } else if (team.id && team.team_name) {
+            TeamsStrava.message('Subscribe team <b>' + team.team_name + '</b> for $19.99/yr.');
+          } else {
+            $('#subscribeButton').remove();
+            TeamsStrava.errorMessage('Missing or invalid team ID.');
+          }
+
+          var handler = StripeCheckout.configure({
+            key: '<%= ENV['STRIPE_API_PUBLISHABLE_KEY'] %>',
+            image: '/img/icon.png',
+            locale: 'auto',
+            token: function(token) {
+              $.ajax({
+                type: 'POST',
+                url: '/api/subscriptions',
+                data: {
+                  stripe_email: token.email,
+                  stripe_token: token.id,
+                  stripe_token_type: token.type,
+                  team_id: team.team_id
+                },
+                success: function(data) {
+                  TeamsStrava.message('Team <b>' + team.team_name + '</b> successfully subscribed.<br><br>Thank you for your support!');
+                  $('#subscribeButton').remove();
+                },
+                error: TeamsStrava.error
+              });
+            }
+          });
+
+          $('#subscribeButton').on('click', function(e) {
+            var amount = 1999;
+            handler.open({
+              name: 'Strata',
+              description: 'Yearly Subscription',
+              amount: amount
+            });
+            e.preventDefault();
+          });
+
+          $(window).on('popstate', function() {
+            handler.close();
+          });
+        });
+      </script>
+    </p>
+    <p>
+      <small>
+        Proceeds go to <a href="https://www.nyrr.org" target="_blank">nyrr.org</a>.
+      </small>
+    </p>
+    <p class='logo'>
+      <a href="https://www.nyrr.org"><img src='img/nyrr.png' alt="New York Road Runners"></a>
+    </p>
+    <%= partial 'public/partials/_footer.html.erb' %>
+  </body>
+</html>

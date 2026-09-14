@@ -1,0 +1,84 @@
+<html lang="en">
+  <head>
+    <title>Strata: Update Credit Card</title>
+    <%= partial 'public/partials/_head.html' %>
+    <meta name="robots" content="noindex, nofollow">
+    <script src='https://checkout.stripe.com/checkout.js'></script>
+    <link rel='stylesheet' href='https://checkout.stripe.com/v3/checkout/button.css'></link>
+    <% team = Team.where(_id: request.params['team_id']).first %>
+  </head>
+  <body>
+    <p class='icon'>
+      <a href='/'><img src='img/icon.png' alt="Strata logo"></a>
+    </p>
+    <p>
+      <h1>Strata: Update Credit Card Info</h1>
+    </p>
+    <p id='messages' />
+    <p id='update_cc'>
+      <button id='updateCcButton' class='stripe-button-el'>
+        <span style='display: block; min-height: 30px;'>Update Credit Card</span>
+      </button>
+      <p>
+        <img src='/img/stripe.png' width='119' height='26' alt="Powered by Stripe"></img>
+        <div class='small'>
+          Questions? Contact dblock[at]vestris[dot]com or DM <a href='https://twitter.com/playplayio'>@playplayio</a>.
+        </div>
+      </p>
+      <script>
+        $(document).ready(function() {
+          var data = {
+            team_id: "<%= team ? team.id : nil %>",
+            team_name: '<%= team && team.team_name.gsub(/[^0-9a-z ]/i, '') %>'
+          }
+
+          TeamsStrava.message('Click button to update the credit card for team <b>' + data.team_name + '.</b>');
+
+          if (!data.team_id) {
+            TeamsStrava.errorMessage('Team not found.')
+            $('#updateCcButton').remove();
+            $('#update_cc').hide();
+            return;
+          }
+
+          var handler = StripeCheckout.configure({
+            key: '<%= ENV['STRIPE_API_PUBLISHABLE_KEY'] %>',
+            image: '/img/icon.png',
+            locale: 'auto',
+            panelLabel: 'Update Credit Card',
+            token: function(token) {
+              $.ajax({
+                type: 'POST',
+                url: '/api/credit_cards',
+                data: {
+                  stripe_email: token.email,
+                  stripe_token: token.id,
+                  stripe_token_type: token.type,
+                  team_id: data.team_id
+                },
+                success: function() {
+                  TeamsStrava.message('Successfully updated team <b>' + data.team_name + '</b> credit card.<br><br>Thank you for your support!');
+                  $('#updateCcButton').remove();
+                },
+                error: TeamsStrava.error
+              });
+            }
+          });
+
+          $('#updateCcButton').on('click', function(e) {
+            handler.open({
+              name: 'Strata',
+              description: 'Update Credit Card'
+            });
+            e.preventDefault();
+          });
+
+          $(window).on('popstate', function() {
+            handler.close();
+          });
+        });
+      </script>
+    </p>
+    <%= partial 'public/partials/_footer.html.erb' %>
+  </body>
+</html>

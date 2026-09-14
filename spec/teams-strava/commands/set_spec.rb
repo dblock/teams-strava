@@ -1,0 +1,1033 @@
+require 'spec_helper'
+
+describe TeamsStrava::Commands::Set do
+  include_context 'teams command' do
+    let(:args) { ['set'] }
+  end
+  context 'settings' do
+    it 'requires a subscription' do
+      expect(response).to eq team.trial_message
+    end
+
+    context 'subscribed team' do
+      let(:team) { Fabricate(:team, subscribed: true) }
+
+      context 'invalid setting' do
+        let(:args) { %w[set whatever] }
+
+        it 'errors' do
+          expect(response).to eq 'Invalid setting whatever, type `help` for instructions.'
+        end
+      end
+
+      it 'shows current settings' do
+        expect(response).to eq([
+          "Activities for team #{team.team_name} display *miles, feet, and yards*.",
+          "Activities for team #{team.team_name} display *degrees Fahrenheit*.",
+          'Activities are retained for *1 month*.',
+          'Timezone is *auto (Eastern Time (US & Canada))*.',
+          'Max activities per user per day are *unlimited*.',
+          'Max activities per channel per day are *unlimited*.',
+          'Activity fields are *set to default*.',
+          'Maps are *displayed in full*.',
+          'Default leaderboard is *distance*.',
+          'Your activities will sync.',
+          'Your private activities will not be posted.',
+          'Your followers only activities will be posted.'
+        ].join("\n"))
+      end
+
+      context 'sync' do
+        context 'without arguments' do
+          let(:args) { %w[set sync] }
+
+          it 'shows default value of sync' do
+            expect(response).to eq(
+              'Your activities will sync.'
+            )
+          end
+
+          it 'shows current value of sync set to true' do
+            user.update_attributes!(sync_activities: true)
+            expect(response).to eq(
+              'Your activities will sync.'
+            )
+          end
+        end
+
+        context 'false' do
+          let(:args) { %w[set sync false] }
+
+          it 'sets sync to false' do
+            user.update_attributes!(sync_activities: true)
+            expect(response).to eq(
+              'Your activities will no longer sync.'
+            )
+            expect(user.reload.sync_activities).to be false
+          end
+        end
+
+        context 'with sync set to false' do
+          before do
+            user.update_attributes!(sync_activities: false)
+          end
+
+          context 'true' do
+            let(:args) { %w[set sync true] }
+
+            it 'sets sync to true' do
+              expect(response).to eq(
+                'Your activities will now sync.'
+              )
+              expect(user.reload.sync_activities).to be true
+            end
+
+            context 'with prior activities' do
+              before do
+                allow_any_instance_of(User).to receive(:inform!)
+                2.times { Fabricate(:user_activity, user:) }
+                user.brag!
+              end
+
+              it 'resets all activities' do
+                expect {
+                  expect {
+                    expect(response).to eq(
+                      'Your activities will now sync.'
+                    )
+                  }.to change(user.activities, :count).by(-2)
+                  user.reload
+                }.to change(user, :activities_at)
+              end
+            end
+          end
+        end
+      end
+
+      context 'private' do
+        context 'no args' do
+          let(:args) { %w[set private] }
+
+          it 'shows current value of private' do
+            expect(response).to eq(
+              'Your private activities will not be posted.'
+            )
+          end
+
+          it 'shows current value of private set to true' do
+            user.update_attributes!(private_activities: true)
+            expect(response).to eq(
+              'Your private activities will be posted.'
+            )
+          end
+        end
+
+        context 'false' do
+          let(:args) { %w[set private false] }
+
+          it 'sets private to false' do
+            user.update_attributes!(private_activities: true)
+            expect(response).to eq(
+              'Your private activities will no longer be posted.'
+            )
+            expect(user.reload.private_activities).to be false
+          end
+        end
+
+        context 'true' do
+          let(:args) { %w[set private true] }
+
+          it 'sets private to true' do
+            expect(response).to eq(
+              'Your private activities will now be posted.'
+            )
+            expect(user.reload.private_activities).to be true
+          end
+        end
+      end
+
+      context 'followers only' do
+        context 'no args' do
+          let(:args) { %w[set followers] }
+
+          it 'shows current value of followers_only' do
+            expect(response).to eq(
+              'Your followers only activities will be posted.'
+            )
+          end
+
+          it 'shows current value of followers only set to false' do
+            user.update_attributes!(followers_only_activities: false)
+            expect(response).to eq(
+              'Your followers only activities will not be posted.'
+            )
+          end
+        end
+
+        context 'false' do
+          let(:args) { %w[set followers false] }
+
+          it 'sets followers only to false' do
+            user.update_attributes!(followers_only_activities: true)
+            expect(response).to eq(
+              'Your followers only activities will no longer be posted.'
+            )
+            expect(user.reload.followers_only_activities).to be false
+          end
+        end
+
+        context 'true' do
+          let(:args) { %w[set followers true] }
+
+          it 'sets followers only to true' do
+            user.update_attributes!(followers_only_activities: false)
+            expect(response).to eq(
+              'Your followers only activities will now be posted.'
+            )
+            expect(user.reload.followers_only_activities).to be true
+          end
+        end
+      end
+
+      context 'as team admin' do
+        before do
+          allow_any_instance_of(User).to receive(:team_owner?).and_return(true)
+        end
+
+        context 'units' do
+          context 'no args' do
+            let(:args) { %w[set units] }
+
+            it 'shows current value of units' do
+              expect(response).to eq(
+                "Activities for team #{team.team_name} display *miles, feet, and yards*."
+              )
+            end
+
+            it 'shows current value of units set to km' do
+              team.update_attributes!(units: 'km')
+              expect(response).to eq(
+                "Activities for team #{team.team_name} display *kilometers and meters*."
+              )
+            end
+
+            it 'shows current value of units set to both' do
+              team.update_attributes!(units: 'both')
+              expect(response).to eq(
+                "Activities for team #{team.team_name} display *both units*."
+              )
+            end
+          end
+
+          context 'mi' do
+            let(:args) { %w[set units mi] }
+
+            it 'sets units to mi' do
+              team.update_attributes!(units: 'km')
+              expect(response).to eq(
+                "Activities for team #{team.team_name} now display *miles, feet, and yards*."
+              )
+              expect(command.team.units).to eq 'mi'
+              expect(team.reload.units).to eq 'mi'
+            end
+          end
+
+          context 'km' do
+            let(:args) { %w[set units km] }
+
+            it 'sets units to km' do
+              team.update_attributes!(units: 'mi')
+              expect(response).to eq(
+                "Activities for team #{team.team_name} now display *kilometers and meters*."
+              )
+              expect(command.team.units).to eq 'km'
+              expect(team.reload.units).to eq 'km'
+            end
+          end
+
+          context 'metric' do
+            let(:args) { %w[set units metric] }
+
+            it 'sets units to metric' do
+              team.update_attributes!(units: 'mi')
+              expect(response).to eq(
+                "Activities for team #{team.team_name} now display *kilometers and meters*."
+              )
+              expect(command.team.units).to eq 'km'
+              expect(team.reload.units).to eq 'km'
+            end
+          end
+
+          context 'imperial' do
+            let(:args) { %w[set units imperial] }
+
+            it 'sets units to imperial' do
+              team.update_attributes!(units: 'km')
+              expect(response).to eq(
+                "Activities for team #{team.team_name} now display *miles, feet, and yards*."
+              )
+              expect(command.team.units).to eq 'mi'
+              expect(team.reload.units).to eq 'mi'
+            end
+          end
+
+          context 'km' do
+            let(:args) { %w[set units km] }
+
+            it 'changes units' do
+              team.update_attributes!(units: 'mi')
+              expect(response).to eq(
+                "Activities for team #{team.team_name} now display *kilometers and meters*."
+              )
+              expect(command.team.units).to eq 'km'
+              expect(team.reload.units).to eq 'km'
+            end
+          end
+
+          context 'both' do
+            let(:args) { %w[set units both] }
+
+            it 'sets units to both' do
+              team.update_attributes!(units: 'km')
+              expect(response).to eq(
+                "Activities for team #{team.team_name} now display *both units*."
+              )
+              expect(command.team.units).to eq 'both'
+              expect(team.reload.units).to eq 'both'
+            end
+          end
+        end
+
+        context 'temperature' do
+          context 'no args' do
+            let(:args) { %w[set temperature] }
+
+            it 'shows current value of temperature' do
+              expect(response).to eq(
+                "Activities for team #{team.team_name} display *degrees Fahrenheit*."
+              )
+            end
+          end
+
+          context 'f' do
+            let(:args) { %w[set temperature f] }
+
+            it 'sets temperature to f' do
+              team.update_attributes!(temperature: 'c')
+              expect(response).to eq(
+                "Activities for team #{team.team_name} now display *degrees Fahrenheit*."
+              )
+              expect(team.reload.temperature).to eq 'f'
+            end
+          end
+
+          context 'c' do
+            let(:args) { %w[set temperature c] }
+
+            it 'sets temperature to c' do
+              expect(response).to eq(
+                "Activities for team #{team.team_name} now display *degrees Celsius*."
+              )
+              expect(team.reload.temperature).to eq 'c'
+            end
+          end
+
+          context 'fahrenheit' do
+            let(:args) { %w[set temperature fahrenheit] }
+
+            it 'sets temperature to fahrenheit' do
+              team.update_attributes!(temperature: 'c')
+              expect(response).to eq(
+                "Activities for team #{team.team_name} now display *degrees Fahrenheit*."
+              )
+              expect(team.reload.temperature).to eq 'f'
+            end
+          end
+
+          context 'celsius' do
+            let(:args) { %w[set temperature celsius] }
+
+            it 'sets temperature to celsius' do
+              expect(response).to eq(
+                "Activities for team #{team.team_name} now display *degrees Celsius*."
+              )
+              expect(team.reload.temperature).to eq 'c'
+            end
+          end
+
+          context 'both' do
+            let(:args) { %w[set temperature both] }
+
+            it 'sets temperature to both' do
+              expect(response).to eq(
+                "Activities for team #{team.team_name} now display *degrees Fahrenheit and Celsius*."
+              )
+              expect(team.reload.temperature).to eq 'both'
+            end
+          end
+
+          context 'temperature can differ from units' do
+            let(:args) { %w[set temperature] }
+
+            it 'shows temperature independently of units' do
+              team.update_attributes!(units: 'km', temperature: 'f')
+              expect(response).to eq(
+                "Activities for team #{team.team_name} display *degrees Fahrenheit*."
+              )
+            end
+          end
+        end
+
+        context 'maps' do
+          context 'no args' do
+            let(:args) { %w[set maps] }
+
+            it 'shows current value of maps' do
+              expect(response).to eq(
+                "Maps for team #{team.team_name} are *displayed in full*."
+              )
+            end
+
+            it 'shows current value of maps set to thumb' do
+              team.update_attributes!(maps: 'thumb')
+              expect(response).to eq(
+                "Maps for team #{team.team_name} are *displayed as thumbnails*."
+              )
+            end
+          end
+
+          context 'thumb' do
+            let(:args) { %w[set maps thumb] }
+
+            it 'sets maps to thumb' do
+              team.update_attributes!(maps: 'off')
+              expect(response).to eq(
+                "Maps for team #{team.team_name} are now *displayed as thumbnails*."
+              )
+              expect(team.reload.maps).to eq 'thumb'
+            end
+          end
+
+          context 'off' do
+            let(:args) { %w[set maps off] }
+
+            it 'sets maps to off' do
+              expect(response).to eq(
+                "Maps for team #{team.team_name} are now *not displayed*."
+              )
+              expect(team.reload.maps).to eq 'off'
+            end
+          end
+
+          context 'foobar' do
+            let(:args) { %w[set maps foobar] }
+
+            it 'displays an error for an invalid maps value' do
+              expect(response).to eq(
+                'Invalid value: foobar, possible values are full, off and thumb.'
+              )
+              expect(team.reload.maps).to eq 'full'
+            end
+          end
+        end
+
+        context 'fields' do
+          context 'no value' do
+            let(:args) { %w[set fields] }
+
+            it 'shows current value of fields' do
+              expect(response).to eq(
+                "Activity fields for team #{team.team_name} are *set to default*."
+              )
+            end
+
+            it 'shows current value of fields set to Time and Elapsed Time' do
+              team.update_attributes!(activity_fields: ['Time', 'Elapsed Time'])
+              expect(response).to eq(
+                "Activity fields for team #{team.team_name} are *Time and Elapsed Time*."
+              )
+            end
+          end
+
+          context 'times' do
+            let(:args) { ['set', 'fields', 'Time,', 'Elapsed', 'Time'] }
+
+            it 'changes fields' do
+              expect(response).to eq(
+                "Activity fields for team #{team.team_name} are now *Time and Elapsed Time*."
+              )
+              expect(command.team.activity_fields).to eq(['Time', 'Elapsed Time'])
+              expect(team.reload.activity_fields).to eq(['Time', 'Elapsed Time'])
+            end
+          end
+
+          context 'none' do
+            let(:args) { %w[set fields none] }
+
+            it 'sets fields to none' do
+              expect(response).to eq(
+                "Activity fields for team #{team.team_name} are now *not displayed*."
+              )
+              expect(command.team.activity_fields).to eq(['None'])
+              expect(team.reload.activity_fields).to eq(['None'])
+            end
+          end
+
+          context 'all' do
+            let(:args) { %w[set fields all] }
+
+            it 'sets fields to all' do
+              team.update_attributes!(activity_fields: ['None'])
+              expect(response).to eq(
+                "Activity fields for team #{team.team_name} are now *all displayed if available*."
+              )
+              expect(command.team.activity_fields).to eq(['All'])
+              expect(team.reload.activity_fields).to eq(['All'])
+            end
+          end
+
+          context 'default' do
+            let(:args) { %w[set fields default] }
+
+            it 'sets fields to default' do
+              team.update_attributes!(activity_fields: ['All'])
+              expect(response).to eq(
+                "Activity fields for team #{team.team_name} are now *set to default*."
+              )
+              expect(command.team.activity_fields).to eq(['Default'])
+              expect(team.reload.activity_fields).to eq(['Default'])
+            end
+          end
+
+          context 'some' do
+            let(:args) { ['set', 'fields', 'Title,', 'Url,', 'PR', 'Count,', 'Elapsed', 'Time'] }
+
+            it 'sets fields to default' do
+              team.update_attributes!(activity_fields: ['All'])
+              expect(response).to eq(
+                "Activity fields for team #{team.team_name} are now *Title, Url, PR Count and Elapsed Time*."
+              )
+              expect(command.team.activity_fields).to eq(['Title', 'Url', 'PR Count', 'Elapsed Time'])
+              expect(team.reload.activity_fields).to eq(['Title', 'Url', 'PR Count', 'Elapsed Time'])
+            end
+          end
+
+          context 'each field' do
+            (ActivityFields.values - [ActivityFields::ALL, ActivityFields::DEFAULT, ActivityFields::NONE]).each do |field|
+              context field do
+                let(:args) { ['set', 'fields', field] }
+
+                it "sets fields to #{field}" do
+                  team.update_attributes!(activity_fields: ['All'])
+                  expect(response).to eq(
+                    "Activity fields for team #{team.team_name} are now *#{field}*."
+                  )
+                  expect(command.team.activity_fields).to eq([field])
+                  expect(team.reload.activity_fields).to eq([field])
+                end
+              end
+            end
+          end
+
+          context 'invalid' do
+            let(:args) { ['set', 'fields', 'Time,', 'Foo,', 'Bar'] }
+
+            it 'sets to invalid fields' do
+              expect(response).to eq(
+                'Invalid fields: Foo and Bar, possible values are Default, All, None, Type, Distance, Time, Moving Time, Elapsed Time, Pace, Speed, Elevation, Max Speed, Heart Rate, Max Heart Rate, PR Count, Calories, Weather, Photos, Device, Gear, Title, Description, Url, User, Medal, Athlete and Date.'
+              )
+              expect(team.reload.activity_fields).to eq ['Default']
+            end
+          end
+
+          context 'leaderboard' do
+            context 'no value' do
+              let(:args) { %w[set leaderboard] }
+
+              it 'shows current value of leaderboard' do
+                expect(response).to eq(
+                  "Default leaderboard for team #{team.team_name} is *distance*."
+                )
+              end
+            end
+
+            context 'no value' do
+              let(:args) { %w[set leaderboard] }
+
+              it 'shows current value of leaderboard as set' do
+                team.update_attributes!(default_leaderboard: 'elapsed time')
+                expect(response).to eq(
+                  "Default leaderboard for team #{team.team_name} is *elapsed time*."
+                )
+              end
+            end
+
+            context 'elapsed time' do
+              let(:args) { %w[set leaderboard elapsed time] }
+
+              it 'sets leaderboard to elapsed time' do
+                team.update_attributes!(default_leaderboard: 'distance')
+                expect(response).to eq(
+                  "Default leaderboard for team #{team.team_name} is now *elapsed time*."
+                )
+                expect(team.reload.default_leaderboard).to eq 'elapsed time'
+              end
+            end
+
+            context 'invalid' do
+              let(:args) { %w[set leaderboard foobar] }
+
+              it 'displays an error' do
+                team.update_attributes!(default_leaderboard: 'distance')
+                expect(response).to eq(
+                  "Sorry, I don't understand 'foobar'."
+                )
+                expect(team.reload.default_leaderboard).to eq 'distance'
+              end
+            end
+          end
+
+          context 'retention' do
+            context 'current' do
+              let(:args) { %w[set retention] }
+
+              it 'shows current retention value' do
+                expect(response).to eq(
+                  "Activities in team #{team.team_name} are retained for *1 month*."
+                )
+              end
+            end
+
+            context 'changed' do
+              let(:args) { %w[set retention] }
+
+              it 'shows changed retention value' do
+                team.update_attributes!(retention: 15 * 24 * 60 * 60)
+                expect(response).to eq(
+                  "Activities in team #{team.team_name} are retained for *15 days*."
+                )
+              end
+            end
+
+            context 'change' do
+              let(:args) { %w[set retention 7 days] }
+
+              it 'sets retention' do
+                expect(response).to eq(
+                  "Activities in team #{team.team_name} are now retained for *7 days*."
+                )
+                expect(team.reload.retention).to eq 7 * 24 * 60 * 60
+              end
+            end
+
+            context 'invalid' do
+              let(:args) { %w[set retention foobar] }
+
+              it 'displays an error for an invalid retention value' do
+                expect(response).to eq(
+                  'An invalid word "foobar" was used in the string to be parsed.'
+                )
+                expect(team.reload.retention).to eq 30 * 24 * 60 * 60
+              end
+            end
+          end
+
+          context 'timezone' do
+            context 'no args' do
+              let(:args) { %w[set timezone] }
+
+              it 'shows the current timezone' do
+                expect(response).to eq(
+                  "Timezone for team #{team.team_name} is *auto (Eastern Time (US & Canada))*."
+                )
+              end
+            end
+
+            context 'change' do
+              let(:args) { ['set', 'timezone', 'Pacific', 'Time', '(US', '&', 'Canada)'] }
+
+              it 'sets the timezone' do
+                expect(response).to eq(
+                  "Timezone for team #{team.team_name} is now *(GMT-08:00) Pacific Time (US & Canada)*."
+                )
+                expect(team.reload.timezone).to eq 'Pacific Time (US & Canada)'
+              end
+            end
+
+            context 'auto' do
+              let(:args) { %w[set timezone auto] }
+
+              it 'sets the timezone to auto' do
+                team.update_attributes!(timezone: 'Pacific Time (US & Canada)')
+
+                expect(response).to eq(
+                  "Timezone for team #{team.team_name} is now *auto (Eastern Time (US & Canada))*."
+                )
+                expect(team.reload.timezone).to eq 'auto'
+              end
+            end
+
+            context 'invalid' do
+              let(:args) { ['set', 'timezone', 'Foo/Bar'] }
+
+              it 'displays an error for an invalid timezone value' do
+                expect(response).to eq(
+                  "TimeZone _Foo/Bar_ is invalid, see https://github.com/rails/rails/blob/v#{ActiveSupport.gem_version}/activesupport/lib/active_support/values/time_zone.rb#L30 for a list. Timezone for team #{team.team_name} is currently *auto (Eastern Time (US & Canada))*."
+                )
+                expect(team.reload.timezone).to eq 'auto'
+              end
+            end
+          end
+
+          context 'userlimit' do
+            context 'no args' do
+              let(:args) { %w[set userlimit] }
+
+              it 'shows the current value of userlimit' do
+                expect(response).to eq(
+                  "Max activities per user per day for team #{team.team_name} are *unlimited*."
+                )
+              end
+            end
+
+            context 'change' do
+              let(:args) { %w[set userlimit 5] }
+
+              it 'sets the per-user daily limit' do
+                expect(response).to eq(
+                  "Max activities per user per day for team #{team.team_name} are now *5 per day*."
+                )
+                expect(team.reload.max_activities_per_user_per_day).to eq 5
+              end
+            end
+
+            context 'none' do
+              let(:args) { %w[set userlimit none] }
+
+              it 'clears the per-user daily limit' do
+                team.update_attributes!(max_activities_per_user_per_day: 5)
+                expect(response).to eq(
+                  "Max activities per user per day for team #{team.team_name} are now *unlimited*."
+                )
+                expect(team.reload.max_activities_per_user_per_day).to be_nil
+              end
+            end
+          end
+
+          context 'channellimit' do
+            context 'no args' do
+              let(:args) { %w[set channellimit] }
+
+              it 'shows the current value of channellimit' do
+                expect(response).to eq(
+                  "Max activities per channel per day for team #{team.team_name} are *unlimited*."
+                )
+              end
+            end
+
+            context 'change' do
+              let(:args) { %w[set channellimit 10] }
+
+              it 'sets the per-channel daily limit' do
+                expect(response).to eq(
+                  "Max activities per channel per day for team #{team.team_name} are now *10 per day*."
+                )
+                expect(team.reload.max_activities_per_channel_per_day).to eq 10
+              end
+            end
+          end
+
+          context 'activities' do
+            context 'no args' do
+              let(:args) { %w[set activities] }
+
+              it 'shows all activity types' do
+                expect(response).to eq(
+                  'Activity types for this channel are *all*.'
+                )
+              end
+            end
+
+            context 'set to run' do
+              let(:args) { %w[set activities Run] }
+
+              it 'sets activity types for the channel' do
+                expect(response).to eq(
+                  'Activity types for this channel are now *Run*.'
+                )
+                expect(team.channel_activity_types_for(user.channel_id)).to eq ['Run']
+              end
+            end
+
+            context 'set to multiple types' do
+              let(:args) { ['set', 'activities', 'Run,Ride'] }
+
+              it 'sets multiple activity types for the channel' do
+                expect(response).to eq(
+                  'Activity types for this channel are now *Run, Ride*.'
+                )
+                expect(team.channel_activity_types_for(user.channel_id)).to eq %w[Run Ride]
+              end
+            end
+
+            context 'set to all' do
+              let(:args) { %w[set activities all] }
+
+              it 'resets activity types for the channel' do
+                team.set_channel!(user.channel_id, 'channel-name', activity_types: ['Run'])
+                expect(response).to eq(
+                  'Activity types for this channel are now *all*.'
+                )
+                expect(team.channel_activity_types_for(user.channel_id)).to eq []
+              end
+            end
+
+            context 'set to invalid type' do
+              let(:args) { %w[set activities InvalidType] }
+
+              it 'returns an error' do
+                expect(response).to include('Invalid activity type: InvalidType')
+              end
+            end
+          end
+        end
+
+        context 'not as a team admin' do
+          before do
+            allow_any_instance_of(User).to receive(:team_owner?).and_return(false)
+          end
+
+          context 'units' do
+            context 'no args' do
+              let(:args) { %w[set units] }
+
+              it 'shows current value of units' do
+                expect(response).to eq(
+                  "Activities for team #{team.team_name} display *miles, feet, and yards*."
+                )
+              end
+            end
+
+            context 'mi' do
+              let(:args) { %w[set units mi] }
+
+              it 'cannot set units' do
+                team.update_attributes!(units: 'km')
+                expect(response).to eq(
+                  "Sorry, only a team owner can change units. Activities for team #{team.team_name} display *kilometers and meters*."
+                )
+                expect(team.reload.units).to eq 'km'
+              end
+            end
+          end
+
+          context 'maps' do
+            context 'no args' do
+              let(:args) { %w[set maps] }
+
+              it 'shows current value of maps' do
+                expect(response).to eq(
+                  "Maps for team #{team.team_name} are *displayed in full*."
+                )
+              end
+            end
+
+            context 'off' do
+              let(:args) { %w[set maps off] }
+
+              it 'cannot set maps' do
+                team.update_attributes!(maps: 'full')
+                expect(response).to eq(
+                  "Sorry, only a team owner can change maps. Maps for team #{team.team_name} are *displayed in full*."
+                )
+                expect(team.reload.maps).to eq 'full'
+              end
+            end
+          end
+
+          context 'fields' do
+            context 'no args' do
+              let(:args) { %w[set fields] }
+
+              it 'shows current value of fields' do
+                expect(response).to eq(
+                  "Activity fields for team #{team.team_name} are *set to default*."
+                )
+              end
+            end
+
+            context 'all' do
+              let(:args) { %w[set fields all] }
+
+              it 'cannot set fields' do
+                team.update_attributes!(activity_fields: ['None'])
+                expect(response).to eq(
+                  "Sorry, only a team owner can change fields. Activity fields for team #{team.team_name} are *not displayed*."
+                )
+                expect(team.activity_fields).to eq(['None'])
+                expect(command.team.activity_fields).to eq(['None'])
+              end
+            end
+          end
+
+          context 'leaderboard' do
+            context 'no args' do
+              let(:args) { %w[set leaderboard] }
+
+              it 'shows current value of leaderboard' do
+                expect(response).to eq(
+                  "Default leaderboard for team #{team.team_name} is *distance*."
+                )
+              end
+            end
+
+            context 'value' do
+              let(:args) { %w[set leaderboard value] }
+
+              it 'cannot set leaderboard' do
+                team.update_attributes!(default_leaderboard: 'elapsed time')
+                expect(response).to eq(
+                  "Sorry, only a team owner can change the default leaderboard. Default leaderboard for team #{team.team_name} is *elapsed time*."
+                )
+                expect(team.reload.default_leaderboard).to eq('elapsed time')
+                expect(command.team.default_leaderboard).to eq('elapsed time')
+              end
+            end
+          end
+
+          context 'retention' do
+            context 'no args' do
+              let(:args) { %w[set retention] }
+
+              it 'shows current value of retention' do
+                expect(response).to eq(
+                  "Activities in team #{team.team_name} are retained for *1 month*."
+                )
+              end
+            end
+
+            context 'value' do
+              let(:args) { %w[set retention 1 month] }
+
+              it 'cannot set retention' do
+                team.update_attributes!(retention: 60 * 24 * 60 * 60)
+                expect(response).to eq(
+                  "Sorry, only a team owner can change activity retention. Activities in team #{team.team_name} are retained for *2 months*."
+                )
+                expect(team.reload.retention).to eq(60 * 24 * 60 * 60)
+              end
+            end
+          end
+
+          context 'timezone' do
+            context 'no args' do
+              let(:args) { %w[set timezone] }
+
+              it 'shows the current timezone' do
+                expect(response).to eq(
+                  "Timezone for team #{team.team_name} is *auto (Eastern Time (US & Canada))*."
+                )
+              end
+            end
+
+            context 'value' do
+              let(:args) { ['set', 'timezone', 'Pacific', 'Time', '(US', '&', 'Canada)'] }
+
+              it 'cannot set timezone' do
+                team.update_attributes!(timezone: 'Hawaii')
+                expect(response).to eq(
+                  "Sorry, only a team owner can change the timezone. Timezone for team #{team.team_name} is *(GMT-10:00) Hawaii*."
+                )
+                expect(team.reload.timezone).to eq 'Hawaii'
+              end
+            end
+
+            context 'auto' do
+              let(:args) { %w[set timezone auto] }
+
+              it 'cannot set timezone to auto' do
+                team.update_attributes!(timezone: 'Hawaii')
+                expect(response).to eq(
+                  "Sorry, only a team owner can change the timezone. Timezone for team #{team.team_name} is *(GMT-10:00) Hawaii*."
+                )
+                expect(team.reload.timezone).to eq 'Hawaii'
+              end
+            end
+          end
+
+          context 'userlimit' do
+            context 'no args' do
+              let(:args) { %w[set userlimit] }
+
+              it 'shows the current value of userlimit' do
+                expect(response).to eq(
+                  "Max activities per user per day for team #{team.team_name} are *unlimited*."
+                )
+              end
+            end
+
+            context 'value' do
+              let(:args) { %w[set userlimit 5] }
+
+              it 'cannot set userlimit' do
+                team.update_attributes!(max_activities_per_user_per_day: 2)
+                expect(response).to eq(
+                  "Sorry, only a team owner can change the max activities per user per day. Max activities per user per day for team #{team.team_name} are *2 per day*."
+                )
+                expect(team.reload.max_activities_per_user_per_day).to eq 2
+              end
+            end
+          end
+
+          context 'channellimit' do
+            context 'no args' do
+              let(:args) { %w[set channellimit] }
+
+              it 'shows the current value of channellimit' do
+                expect(response).to eq(
+                  "Max activities per channel per day for team #{team.team_name} are *unlimited*."
+                )
+              end
+            end
+
+            context 'value' do
+              let(:args) { %w[set channellimit 10] }
+
+              it 'cannot set channellimit' do
+                team.update_attributes!(max_activities_per_channel_per_day: 3)
+                expect(response).to eq(
+                  "Sorry, only a team owner can change the max activities per channel per day. Max activities per channel per day for team #{team.team_name} are *3 per day*."
+                )
+                expect(team.reload.max_activities_per_channel_per_day).to eq 3
+              end
+            end
+          end
+
+          context 'activities' do
+            context 'no args' do
+              let(:args) { %w[set activities] }
+
+              it 'shows current activity types' do
+                expect(response).to eq(
+                  'Activity types for this channel are *all*.'
+                )
+              end
+            end
+
+            context 'value' do
+              let(:args) { %w[set activities Run] }
+
+              it 'cannot set activity types' do
+                team.set_channel!(user.channel_id, 'channel-name', activity_types: ['Ride'])
+                expect(response).to eq(
+                  'Sorry, only a team owner can change the activity types for a channel. Activity types for this channel are *Ride*.'
+                )
+                expect(team.channel_activity_types_for(user.channel_id)).to eq ['Ride']
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end

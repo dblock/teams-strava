@@ -1,0 +1,62 @@
+source 'http://rubygems.org'
+
+ruby File.read(File.join(__dir__, '.ruby-version')).strip
+
+gem 'async'
+gem 'chronic'
+gem 'chronic_duration'
+gem 'grape'
+gem 'grape-roar'
+gem 'grape-swagger'
+gem 'hashie'
+gem 'httparty'
+gem 'irb'
+gem 'kaminari-grape'
+gem 'mongoid'
+gem 'mongoid-locker'
+gem 'mongoid-scroll'
+gem 'newrelic_rpm'
+gem 'open-weather-ruby-client'
+gem 'ostruct'
+gem 'polylines'
+gem 'puma'
+gem 'rack'
+gem 'rack-cors'
+gem 'rack-rewrite'
+gem 'rack-robotz'
+gem 'rack-server-pages'
+gem 'ruby-enum'
+gem 'strava-ruby-client'
+gem 'stripe', '~> 13.5'
+gem 'teams_rb', require: 'teams'
+gem 'wannabe_bool'
+
+group :development, :test do
+  gem 'foreman'
+  gem 'rackup'
+  gem 'rake'
+  gem 'rubocop'
+  gem 'rubocop-capybara'
+  gem 'rubocop-rake'
+  gem 'rubocop-rspec'
+end
+
+group :development do
+  gem 'mongoid-shell'
+end
+
+group :test do
+  gem 'capybara'
+  gem 'database_cleaner-mongoid'
+  gem 'fabrication'
+  gem 'faker'
+  gem 'faraday-rack'
+  gem 'hyperclient'
+  gem 'rack-test'
+  gem 'rspec'
+  gem 'selenium-webdriver'
+  gem 'stripe-ruby-mock', '~> 5.0', require: 'stripe_mock'
+  gem 'timecop'
+  gem 'vcr'
+  gem 'webmock'
+end

@@ -1,0 +1,55 @@
+<html lang="en">
+  <head>
+    <title>Strata: Help</title>
+    <%= partial 'public/partials/_head.html.erb' %>
+    <meta name="description" content="How to use Strata: connect Strava, view leaderboards and stats, configure sync, privacy, retention, timezone, units, fields, and maps for your Teams channel."/>
+    <meta property="og:title" content="Strata: Help">
+    <meta property="og:description" content="How to use Strata: connect Strava, view leaderboards and stats, configure sync, privacy, retention, timezone, units, fields, and maps for your Teams channel.">
+    <meta name="twitter:title" content="Strata: Help">
+    <meta name="twitter:description" content="How to use Strata: connect Strava, view leaderboards and stats, configure sync, privacy, retention, timezone, units, fields, and maps for your Teams channel.">
+  </head>
+  <body>
+    <p class='icon'>
+      <a href='/'><img src='img/icon.png' alt="Strata logo"></a>
+    </p>
+    <p>
+      <h1>Strata: Help</h1>
+    </p>
+    <p>
+      This bot is powered by Strava and posts your Strava activities to Microsoft Teams.
+      It is not made by, nor is officially affiliated with <a target="_blank" href="https://www.strava.com">Strava</a>.
+    </p>
+    <p>&nbsp;</p>
+    <p>
+      <img src="img/help.png" alt="Strata Microsoft Teams commands example">
+    </p>
+    <p>&nbsp;</p>
+    <p>
+      Use <b>@Strata connect</b> to connect your Strava account and <b>@Strata disconnect</b> to disconnect. Follow the prompts. Notifications will be sent to the channel where you connected.
+    </p>
+    <p>
+      Try <b>@Strata leaderboard</b> to see a distance leaderboard, or <b>@Strata stats</b> to see aggregate stats in the current channel for the past 30 days.
+      Try <b>@Strata leaderboard distance</b>, <b>@Strata leaderboard time</b> or <b>@Strata leaderboard count</b>.
+      Leaderboard supports longer ranges which may require adjusting <b>retention</b>.
+      Try <b>@Strata leaderboard last week</b>, or <b>@Strata leaderboard elapsed time last month</b>.
+      Leaderboard also understands <b>since 2024</b> or <b>between January and March</b>.
+    </p>
+    <p>
+      Stop syncing activities with <b>@Strata set sync false</b> and resume with <b>@Strata set sync true</b> (default).
+      Publish private (only you) activities with <b>@Strata set private true</b> or hide them with <b>@Strata set private false</b> (default).
+      Publish followers only activities with <b>@Strata set followers true</b> (default) or hide them with <b>@Strata set followers false</b>.
+    </p>
+    <p>
+      Strata retains activities for 30 days. Team owners can change this with <b>@Strata set retention 60 days</b> or <b>@Strata set retention 3 months</b> to change this.
+      Change the team timezone with <b>@Strata set timezone Pacific Time (US &amp; Canada)</b> or <b>@Strata set timezone auto</b> so date-based features and daily limits use the right day boundary.
+      Limit activity floods with <b>@Strata set userlimit 5</b> to cap how many activities a user can post per day, or <b>@Strata set channellimit 10</b> to cap the number of activities posted in a channel per day.
+      Use <b>@Strata set userlimit none</b> or <b>@Strata set channellimit none</b> to remove those limits.
+      Change <b>units</b> with <b>@Strata set units imperial</b> (miles, feet, yards, and degrees Fahrenheit, default), <b>@Strata set units metric</b> (kilometers, meters, and degrees Celsius), or <b>@Strata set units both</b> to display both values.
+      Change displayed fields with <b>@Strata set fields</b>, eg. <b>@Strata set fields default</b>, <b>@Strata set fields all</b> or <b>@Strata set fields none</b>.
+      Available fields are <%= ActivityFields.values.and { |v| '<b>' + v + '</b>' } %>.
+      Turn maps off with <b>@Strata set maps off</b>, display thumbnails with <b>@Strata set maps thumb</b> and full maps with <b>@Strata set maps full</b> (default).
+      Disconnect users with <b>@Strata disconnect @mention</b>.
+    </p>
+    <%= partial 'public/partials/_footer.html.erb' %>
+  </body>
+</html>

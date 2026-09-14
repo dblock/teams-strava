@@ -1,0 +1,38 @@
+body {
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    text-align: center;
+    margin: 20px;
+}
+
+.icon img {
+    width: 200px;
+}
+
+.logo img {
+    width: 120px;
+}
+
+.image {
+    max-width: 1024px;
+    margin: auto;
+}
+
+.image img {
+    width: 100%;
+}
+
+.register img {
+    transition: transform 0.1s ease-in-out;
+}
+
+.register img:hover {
+    transform: scale(1.03);
+}
+
+#messages {
+    min-height: 1.5em;
+}
+
+p.has-error {
+    color: red;
+}

@@ -1,0 +1,8 @@
+require 'teams-strava/api/endpoints/teams_endpoint'
+require 'teams-strava/api/endpoints/subscriptions_endpoint'
+require 'teams-strava/api/endpoints/status_endpoint'
+require 'teams-strava/api/endpoints/credit_cards_endpoint'
+require 'teams-strava/api/endpoints/users_endpoint'
+require 'teams-strava/api/endpoints/maps_endpoint'
+require 'teams-strava/api/endpoints/strava_endpoint'
+require 'teams-strava/api/endpoints/root_endpoint'

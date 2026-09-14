@@ -1,0 +1,81 @@
+<html lang="en">
+ <head>
+  <title>Strata: Strava integration with Microsoft Teams</title>
+  <%= partial 'public/partials/_head.html.erb' %>
+    <script src="/scripts/status.js"></script>
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <meta name="description" content="Connects Strava in Microsoft Teams and reposts athlete and club activities into Teams channels, including time, distance, pace, map and weather."/>
+  <meta property="og:title" content="Strata: Strava integration with Microsoft Teams">
+  <meta property="og:description" content="Connects Strava in Microsoft Teams and reposts athlete and club activities into Teams channels, including time, distance, pace, map and weather.">
+  <meta name="twitter:title" content="Strata: Strava integration with Microsoft Teams">
+  <meta name="twitter:description" content="Connects Strava in Microsoft Teams and reposts athlete and club activities into Teams channels, including time, distance, pace, map and weather.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Strata",
+    "url": "<%= TeamsStrava::Service.url %>",
+    "applicationCategory": "SocialNetworkingApplication",
+    "operatingSystem": "Microsoft Teams",
+    "description": "Connects Strava in Microsoft Teams and reposts athlete and club activities into Teams channels, including time, distance, pace, map and weather."
+  }
+  </script>
+ </head>
+ <body>
+  <p class='icon'>
+    <a href="/"><img src='img/icon.png' alt="Strata logo"></a>
+  </p>
+  <p>
+    <h1>Strata: Strava integration with Microsoft Teams</h1>
+  </p>
+  <p>
+    Connects Strava to Microsoft Teams. Every new activity is reposted into a Teams channel.
+  </p>
+  <p>
+    ⏱ Moving and elapsed time, distance, pace, speed, elevation
+    <br>🗺 Includes maps and weather
+    <br>🏃 Perfect for your Teams running or cycling club
+  </p>
+  <p id='messages' />
+  <p class='register'>
+    <a href="<%= TeamsStrava::Service.install_url %>"><img alt="Add Strata to Microsoft Teams" src="img/install.png"></a>
+  </p>
+  <p>
+    <small>
+      Free 2 week trial, no credit card required. Subscribe for $19.99/yr.
+    </small>
+  </p>
+  <p>&nbsp;</p>
+  <p class='image'>
+    <img src='img/notify.png' alt="Example Strava activity notification posted to a Microsoft Teams channel">
+  </p>
+  <p class='register'>
+    <a href="<%= TeamsStrava::Service.install_url %>"><img alt="Add Strata to Microsoft Teams" src="img/install.png"></a>
+  </p>
+  <p>&nbsp;</p>
+  <p>
+    <small>
+      Money used for servers and to pay for <a href="https://www.strava.com/athletes/dblockdotorg" target="_blank">for my membership and running</a> with the non-profit <a href="https://www.nyrr.org/" target="_blank">nyrr.org</a>.
+    </small>
+  </p>
+  <p>
+    <small>
+      Looking to add Strava to Slack or Discord? Check out <a href="https://slava.playplay.io" target="_blank">Slava</a> (<a href="https://github.com/dblock/slack-strava" target="_blank">slack-strava</a>) or <a href="https://strada.playplay.io" target="_blank">Strada</a> (<a href="https://github.com/dblock/discord-strava" target="_blank">discord-strava</a>).
+    </small>
+  </p>
+  <p class='logo'>
+    <a href="https://www.nyrr.org"><img src='img/nyrr.png' alt="New York Road Runners"></a>
+  </p>
+  <p class='logo'>
+    <img src='img/powered.png' alt="Powered by Strava">
+  </p>
+  <p>
+    <small>
+      (not officially affiliated with <a target="_blank" href="https://www.strava.com">Strava</a>)
+    </small>
+  </p>
+  <%= partial 'public/partials/_footer.html.erb' %>
+ </body>
+</html>
+

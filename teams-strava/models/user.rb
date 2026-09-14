@@ -1,0 +1,322 @@
+class User
+  include Mongoid::Document
+  include Mongoid::Timestamps
+  include Mongoid::Locker
+  include StravaTokens
+  include Brag
+
+  UNKNOWN_MEMBER_ERROR = /404/
+  UNKNOWN_CONVERSATION_ERROR = /404/
+  UNKNOWN_MESSAGE_ERROR = /404/
+  MISSING_ACCESS_ERROR = /403/
+  DISABLE_SYNC_ERRORS = [MISSING_ACCESS_ERROR, UNKNOWN_CONVERSATION_ERROR].freeze
+
+  field :channel_id, type: String
+  field :service_url, type: String
+  field :user_id, type: String
+  field :user_name, type: String
+  field :activities_at, type: DateTime
+  field :connected_to_strava_at, type: DateTime
+  field :private_activities, type: Boolean, default: false
+  field :followers_only_activities, type: Boolean, default: true
+  field :sync_activities, type: Boolean, default: true
+  field :locking_name, type: String
+  field :locked_at, type: Time
+
+  embeds_one :athlete
+  index('athlete.athlete_id' => 1)
+
+  belongs_to :team, index: true
+  validates_presence_of :team
+  validates_presence_of :user_id
+  validates_presence_of :channel_id
+
+  has_many :activities, class_name: 'UserActivity', dependent: :destroy
+
+  index({ team_id: 1, user_id: 1, channel_id: 1 }, unique: true)
+  index(access_token: 1)
+
+  scope :connected_to_strava, -> { where(:access_token.ne => nil) }
+
+  after_update :connected_to_strava_changed
+  after_update :sync_activities_changed
+
+  def connected_to_strava?
+    !access_token.nil?
+  end
+
+  def connect_to_strava_url
+    redirect_uri = "#{TeamsStrava::Service.url}/connect"
+    "https://www.strava.com/oauth/authorize?client_id=#{ENV.fetch('STRAVA_CLIENT_ID', nil)}&redirect_uri=#{redirect_uri}&response_type=code&scope=activity:read_all&state=#{id}"
+  end
+
+  def inform!(message)
+    logger.info "Posting '#{message}' for #{self} on #{channel_id}."
+    sent = TeamsStrava::Bot.instance.send_message(channel_id, service_url, message)
+
+    {
+      message_id: sent.id,
+      channel_id:
+    }
+  end
+
+  def update!(message, channel_message)
+    logger.info "Updating #{self}, message_id=#{channel_message.message_id}, channel_id=#{channel_message.channel_id} with #{message}."
+    sent = TeamsStrava::Bot.instance.update_message(channel_message.channel_id, service_url, channel_message.message_id, message)
+
+    {
+      message_id: sent.id,
+      channel_id: channel_message.channel_id
+    }
+  end
+
+  def delete!(channel_message)
+    logger.info "Deleting #{self}, message_id=#{channel_message.message_id}, channel_id=#{channel_message.channel_id}."
+    TeamsStrava::Bot.instance.delete_message(channel_message.channel_id, service_url, channel_message.message_id)
+    nil
+  end
+
+  def to_s
+    "user_id=#{user_id}, user_name=#{user_name}"
+  end
+
+  def teams_mention
+    "**#{user_name}**"
+  end
+
+  def connect!(code)
+    response = get_access_token!(code)
+    logger.debug "Connecting team=#{team}, user=#{self}, #{response}"
+    raise 'Missing access_token in OAuth response.' unless response.access_token
+    raise 'Missing refresh_token in OAuth response.' unless response.refresh_token
+    raise 'Missing expires_at in OAuth response.' unless response.expires_at
+
+    update_attributes!(
+      athlete: Athlete.new(Athlete.summary_attrs_from_strava(response.athlete)),
+      token_type: response.token_type,
+      access_token: response.access_token,
+      refresh_token: response.refresh_token,
+      token_expires_at: Time.at(response.expires_at),
+      connected_to_strava_at: DateTime.now.utc
+    )
+    logger.info "Connected team=#{team}, user=#{self}, athlete_id=#{athlete.athlete_id}"
+    connected!
+    inform! "New Strava account connected for #{teams_mention}."
+  end
+
+  def connected!
+    dm! "Strava account successfully connected.\nI won't post any private activities, use `strata set private on` to toggle that, and `strata help` for other options."
+  rescue TeamsStrava::Error => e
+    logger.warn "Error DMing #{self}: #{e.message}"
+  end
+
+  def disconnect_from_strava
+    if access_token
+      try_to_revoke_access_token
+      reset_access_tokens!(connected_to_strava_at: nil)
+      logger.info "Disconnected team=#{team}, user=#{self}"
+      'Strava account successfully disconnected.'
+    else
+      'Strava account is not connected.'
+    end
+  end
+
+  def disconnect!
+    disconnect_from_strava
+  end
+
+  def connect_to_strava(message = 'Please connect your Strava account.')
+    card = ::Teams::Cards::AdaptiveCard.new(
+      ::Teams::Cards::TextBlock.new(message, wrap: true),
+      actions: [::Teams::Cards::OpenUrlAction.new(title: 'Connect!', url: connect_to_strava_url)]
+    )
+    ::Teams::Api::MessageActivity.new.add_card(card)
+  end
+
+  def dm_connect!(message = 'Please connect your Strava account.')
+    dm!(connect_to_strava(message))
+  end
+
+  def dm!(message)
+    sent = TeamsStrava::Bot.instance.send_dm(user_id, team.tenant_id, message)
+
+    {
+      activity_id: sent.id,
+      conversation_id: sent.conversation_id
+    }
+  end
+
+  def brag!
+    brag_new_activities!
+  end
+
+  def rebrag!
+    rebrag_last_activity!
+  end
+
+  def brag_new_activities!
+    activity = activities.not_bragged.asc(:start_date).first
+    return unless activity
+
+    if team.max_activities_per_user_per_day
+      bragged_today = activities.where(:bragged_at.gte => team.now.beginning_of_day).count
+      if bragged_today >= team.max_activities_per_user_per_day
+        logger.info "#{self} reached the daily activity limit of #{team.max_activities_per_user_per_day}."
+        return
+      end
+    end
+
+    update_attributes!(activities_at: activity.start_date) if activities_at.nil? || (activities_at < activity.start_date && activity.start_date <= Time.now.utc)
+    result = activity.brag!
+    return unless result
+
+    result.merge(activity:)
+  end
+
+  # updates activity details, brings in description, etc.
+  def rebrag_last_activity!
+    activity = latest_bragged_activity
+    return unless activity
+
+    rebrag_activity!(activity)
+  end
+
+  def rebrag_activity!(activity)
+    with_strava_error_handler do
+      sync_athlete!
+      detailed_activity = strava_client.activity(activity.strava_id)
+
+      activity = UserActivity.create_from_strava!(self, detailed_activity)
+      return unless activity
+      return unless activity.bragged_at
+
+      result = activity.hidden? ? activity.unbrag! : activity.rebrag!
+      return unless result
+
+      result.merge(activity:)
+    end
+  end
+
+  def sync_activity_and_brag!(activity_id)
+    with_lock do
+      with_strava_error_handler do
+        sync_strava_activity!(activity_id)
+        brag!
+      end
+    end
+  end
+
+  def sync_new_strava_activities!
+    dt = activities_at || latest_activity_start_date || before_connected_to_strava_at || created_at
+    options = {}
+    options[:after] = dt.to_i unless dt.nil?
+    sync_strava_activities!(options)
+  end
+
+  def sync_strava_activity!(strava_id)
+    sync_athlete!
+    detailed_activity = strava_client.activity(strava_id)
+    return if detailed_activity['private'] && !private_activities?
+    raise "Activity athlete ID #{detailed_activity.athlete.id} does not match #{athlete.athlete_id}." if detailed_activity.athlete.id.to_s != athlete.athlete_id
+
+    UserActivity.create_from_strava!(self, detailed_activity) || activities.where(strava_id: detailed_activity.id).first
+  rescue Strava::Errors::Fault => e
+    handle_strava_error e
+  end
+
+  def team_owner?
+    team.team_owners.include?(user_id)
+  end
+
+  def left_team?
+    TeamsStrava::Bot.instance.member(team.conversation_id, user_id)
+    false
+  rescue TeamsStrava::Error => e
+    raise unless e.message =~ UNKNOWN_MEMBER_ERROR
+
+    true
+  end
+
+  def medal_s(activity_type)
+    case team.leaderboard(metric: 'distance').find(_id, activity_type)
+    when 1
+      '🥇'
+    when 2
+      '🥈'
+    when 3
+      '🥉'
+    end
+  end
+
+  before_destroy :try_to_revoke_access_token
+
+  private
+
+  def try_to_revoke_access_token
+    revoke_access_token!
+    logger.info "Revoked access token for team=#{team_id}, user=#{user_name}, user_id=#{id}"
+  rescue StandardError => e
+    logger.warn "Error revoking access token for #{self}: #{e.message}"
+  end
+
+  # includes some of the most recent activities
+  def before_connected_to_strava_at(tt = 8.hours)
+    dt = connected_to_strava_at
+    dt -= tt if dt
+    dt
+  end
+
+  def latest_bragged_activity(dt = 12.hours)
+    activities.bragged.where(unbragged_at: nil, :start_date.gt => Time.now - dt).desc(:start_date).first
+  end
+
+  def latest_activity_start_date
+    activities.desc(:start_date).first&.start_date
+  end
+
+  def sync_strava_activities!(options = {})
+    return unless sync_activities?
+
+    sync_athlete!
+    strava_client.athlete_activities(options) do |activity|
+      UserActivity.create_from_strava!(self, activity)
+    end
+  rescue Strava::Errors::Fault => e
+    handle_strava_error e
+  end
+
+  def handle_strava_error(e)
+    if e.message =~ /Authorization Error/
+      logger.warn "Error for #{self}, #{e.message}, authorization error."
+      reset_access_tokens!(connected_to_strava_at: nil)
+      dm_connect! 'There was an authorization problem with Strava. Make sure that you leave the "View data about your private activities" box checked when reconnecting your Strava account.'
+    elsif e.errors&.first && e.errors.first['field'] == 'refresh_token' && e.errors.first['code'] == 'invalid'
+      logger.warn "Error for #{self}, #{e.message}, refresh token was invalid."
+      reset_access_tokens!(connected_to_strava_at: nil)
+      dm_connect! 'There was a re-authorization problem with Strava. Make sure that you leave the "View data about your private activities" box checked when reconnecting your Strava account.'
+    else
+      backtrace = e.backtrace.join("\n")
+      logger.error "#{e.class.name}: #{e.message}\n  #{backtrace}"
+      NewRelic::Agent.notice_error(e, custom_params: { user: to_s })
+    end
+    raise e
+  end
+
+  def connected_to_strava_changed
+    return unless connected_to_strava_at? && (connected_to_strava_at_changed? || saved_change_to_connected_to_strava_at?)
+
+    activities.destroy_all
+    set activities_at: nil
+  end
+
+  def sync_activities_changed
+    return unless sync_activities? && (sync_activities_changed? || saved_change_to_sync_activities?)
+
+    activities.destroy_all
+    set activities_at: Time.now.utc
+  end
+
+  def sync_athlete!
+    athlete&.sync!
+  end
+end

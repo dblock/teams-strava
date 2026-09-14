@@ -1,0 +1,52 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.19",
+  "version": "0.1.0",
+  "id": "00000000-0000-0000-0000-000000000000",
+  "developer": {
+    "name": "Vestris LLC",
+    "websiteUrl": "https://www.vestris.com",
+    "privacyUrl": "https://strata.playplay.io/privacy",
+    "termsOfUseUrl": "https://strata.playplay.io/terms"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "name": {
+    "short": "Strata",
+    "full": "Strata - Strava for Microsoft Teams"
+  },
+  "description": {
+    "short": "Strata connects Strava with Microsoft Teams.",
+    "full": "Strata posts your team's Strava activities to a Microsoft Teams channel, tracks leaderboards and stats, and lets everyone connect their own Strava account."
+  },
+  "accentColor": "#FC4C02",
+  "bots": [
+    {
+      "botId": "00000000-0000-0000-0000-000000000000",
+      "scopes": ["team", "groupChat", "personal"],
+      "supportsFiles": false,
+      "isNotificationOnly": false,
+      "commandLists": [
+        {
+          "scopes": ["team", "groupChat", "personal"],
+          "commands": [
+            { "title": "help", "description": "Get help." },
+            { "title": "info", "description": "Show general information about the bot." },
+            { "title": "connect", "description": "Connect your Strava account." },
+            { "title": "disconnect", "description": "Disconnect your Strava account." },
+            { "title": "set", "description": "Change settings, e.g. \"set units metric\"." },
+            { "title": "leaderboard", "description": "Display a team leaderboard, e.g. \"leaderboard distance this month\"." },
+            { "title": "stats", "description": "Display team stats for the past 30 days." },
+            { "title": "subscription", "description": "Show subscription info and a link to update the payment method." },
+            { "title": "unsubscribe", "description": "Turn off subscription auto-renew." },
+            { "title": "resubscribe", "description": "Turn on subscription auto-renew." }
+          ]
+        }
+      ]
+    }
+  ],
+  "permissions": ["identity", "messageTeamMembers"],
+  "validDomains": ["strata.playplay.io"]
+}

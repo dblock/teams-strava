@@ -62,8 +62,13 @@ module TeamsStrava
         )
       end
 
+      # Strip the ";messageid=..." suffix Teams appends to conversation ids
+      # for channel messages. Without this, a user's channel_id would be
+      # pinned to the specific message they typed the command in (e.g.
+      # "connect"), and every future post to them would show up threaded as
+      # a reply under that message instead of as a new top-level post.
       def channel_id
-        activity.conversation.id
+        activity.conversation.id.to_s.split(';').first
       end
 
       def service_url

@@ -98,6 +98,9 @@ module TeamsStrava
 
       logger.info 'Ensuring Strava webhook.'
       StravaWebhook.instance.ensure!
+    rescue Strava::Errors::Fault => e
+      logger.warn "Error ensuring Strava webhook, #{e.message}, #{e.errors}."
+      NewRelic::Agent.notice_error(e)
     rescue StandardError => e
       logger.warn "Error ensuring Strava webhook, #{e.message}."
       NewRelic::Agent.notice_error(e)

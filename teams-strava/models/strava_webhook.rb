@@ -20,6 +20,12 @@ class StravaWebhook
     end
   end
 
+  def stale_subscription
+    client.push_subscriptions.detect do |s|
+      s.callback_url != callback_url
+    end
+  end
+
   def subscribed?
     subscription.present?
   end
@@ -36,10 +42,12 @@ class StravaWebhook
     )
   end
 
-  def unsubscribe!
-    Api::Middleware.logger.info "Deleting a Strava webhook subscription #{subscription.id} at #{callback_url} ..."
-    client.delete_push_subscription(id: subscription.id)
-    @subscription = nil
+  def unsubscribe!(id: subscription&.id)
+    return unless id
+
+    Api::Middleware.logger.info "Deleting a Strava webhook subscription #{id} at #{callback_url} ..."
+    client.delete_push_subscription(id:)
+    @subscription = nil if id == subscription&.id
   end
 
   def list!
@@ -50,7 +58,11 @@ class StravaWebhook
 
   def ensure!
     list!
-    # unsubscribe! if subscribed?
+    # Strava only allows a single webhook subscription per app, so a stale
+    # one (e.g. an old ngrok URL) must be removed before a new one can be
+    # created, otherwise create_push_subscription fails with Bad Request.
+    stale = stale_subscription
+    unsubscribe!(id: stale.id) if stale
     subscribe! unless subscribed?
     Api::Middleware.logger.info "Using Strava webhook subscription #{subscription.id} at #{subscription.callback_url || callback_url}."
   end

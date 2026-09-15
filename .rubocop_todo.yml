@@ -183,6 +183,7 @@ RSpec/StubbedMock:
     - 'spec/models/user_activity_spec.rb'
     - 'spec/models/user_spec.rb'
     - 'spec/teams-strava/commands/disconnect_spec.rb'
+    - 'spec/teams-strava/models/strava_webhook_spec.rb'
 
 # Offense count: 3
 # Configuration parameters: IgnoreNameless, IgnoreSymbolicNames.

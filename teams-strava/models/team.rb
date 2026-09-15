@@ -81,7 +81,7 @@ class Team
     attrs = {
       team_name: team_info.name,
       tenant_id: activity.channel_data.tenant&.id || activity.conversation.tenant_id,
-      conversation_id: activity.conversation.id,
+      conversation_id: activity.conversation.id.to_s.split(';').first,
       service_url: activity.service_url,
       installer_id: activity.from.aad_object_id || activity.from.id,
       installer_name: activity.from.name,

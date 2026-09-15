@@ -108,6 +108,38 @@ describe Team do
         expect(described_class.install_or_update!(ctx)).to be_nil
       end
     end
+
+    context 'with a conversation id that includes a messageid suffix' do
+      let(:activity_hash) do
+        {
+          type: 'conversationUpdate',
+          from: {
+            id: 'fallback-installer-id',
+            name: 'Installer Name',
+            aadObjectId: 'installer-id'
+          },
+          conversation: {
+            id: 'conversation-id;messageid=1234567890',
+            conversationType: 'channel'
+          },
+          serviceUrl: 'https://smba.trafficmanager.net/amer/',
+          channelData: {
+            team: {
+              id: 'team-id',
+              name: 'Team Name'
+            },
+            tenant: {
+              id: 'tenant-id'
+            }
+          }
+        }
+      end
+
+      it 'strips the messageid suffix so future posts are not threaded' do
+        described_class.install_or_update!(ctx)
+        expect(described_class.last.conversation_id).to eq 'conversation-id'
+      end
+    end
   end
 
   describe '.find_by_activity!' do

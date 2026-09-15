@@ -4,47 +4,43 @@ module TeamsStrava
       include TeamsStrava::Loggable
 
       HELP = <<~EOS.freeze
-        ```
         I am Strata, your friendly bot powered by Strava.
 
         @mention me with a command to get started, e.g. "@Strata help".
 
-        Setup
-        ------------
-        connect                              - connect your Strava account
-        disconnect                           - disconnect your Strava account
-        leaderboard distance|... [when]      - leaderboard by distance, etc.
-          2025|last year|[month]|...
-          since|between [date] [and [date]]
-        stats                                - stats in current channel for the past 30 days
+        **Setup**
 
-        Admins
-        ------------
-        disconnect @mention                  - disconnect someone else's Strava account
+        - `connect` - connect your Strava account
+        - `disconnect` - disconnect your Strava account
+        - `leaderboard distance|... [when]` - leaderboard by distance, etc. `[when]` can be a year (e.g. `2025`), `last year`, `[month]`, or `since|between [date] [and [date]]`
+        - `stats` - stats in current channel for the past 30 days
 
-        Settings
-        ------------
-        set retention [n] days|months|years  - set how long to retain user activities (default is 30 days)
-        set timezone [tz|auto]               - set timezone, default is auto-detected
-        set userlimit [n]|none               - max activities posted per user per day (default is unlimited)
-        set channellimit [n]|none            - max activities posted per channel per day (default is unlimited)
-        set activities [type,...]|all        - activity types to post in this channel (default is all)
-        set units imperial|metric|both       - use imperial vs. metric units, or display both
-        set temperature f|c|both             - temperature units, independent of distance units
-        set fields all|none|...              - display all, none or certain activity fields
-        set maps off|full|thumb              - change the way maps are displayed
-        set sync true|false                  - sync activities (default is true)
-        set private true|false               - sync private (only you) activities (default is false)
-        set followers true|false             - sync followers only activities (default is true)
+        **Admins**
 
-        General
-        ------------
-        help                                 - get this helpful message
-        subscription                         - show subscription info, update credit-card
-        unsubscribe                          - turn off subscription auto-renew
-        resubscribe                          - turn on subscription auto-renew
-        info                                 - bot info, contact, feature requests
-        ```
+        - `disconnect @mention` - disconnect someone else's Strava account
+
+        **Settings**
+
+        - `set retention [n] days|months|years` - set how long to retain user activities (default is 30 days)
+        - `set timezone [tz|auto]` - set timezone, default is auto-detected
+        - `set userlimit [n]|none` - max activities posted per user per day (default is unlimited)
+        - `set channellimit [n]|none` - max activities posted per channel per day (default is unlimited)
+        - `set activities [type,...]|all` - activity types to post in this channel (default is all)
+        - `set units imperial|metric|both` - use imperial vs. metric units, or display both
+        - `set temperature f|c|both` - temperature units, independent of distance units
+        - `set fields all|none|...` - display all, none or certain activity fields
+        - `set maps off|full|thumb` - change the way maps are displayed
+        - `set sync true|false` - sync activities (default is true)
+        - `set private true|false` - sync private (only you) activities (default is false)
+        - `set followers true|false` - sync followers only activities (default is true)
+
+        **General**
+
+        - `help` - get this helpful message
+        - `subscription` - show subscription info, update credit-card
+        - `unsubscribe` - turn off subscription auto-renew
+        - `resubscribe` - turn on subscription auto-renew
+        - `info` - bot info, contact, feature requests
       EOS
 
       command 'help' do |request|

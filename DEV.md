@@ -36,8 +36,11 @@ Register a bot resource in Azure (via the [Azure Bot](https://learn.microsoft.co
 Using the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/):
 
 ```
-# log in and select your subscription
-az login
+# log in; if your tenant is a Microsoft 365 developer tenant with no Azure
+# subscription attached, add --allow-no-subscriptions (Entra ID app/service
+# principal commands work fine without one; az bot create below needs a
+# real, billable subscription, which may mean a different login/tenant)
+az login --tenant "<TENANT_ID>" --allow-no-subscriptions
 az account set --subscription "<subscription-name-or-id>"
 
 # create a resource group, if you don't already have one
@@ -137,27 +140,39 @@ Alternatively, install/update it from the command line with [CLI for Microsoft 3
 
 #### CLI for Microsoft 365 Login
 
-Recent versions of the CLI no longer ship with a shared built-in Entra app, so `m365 login` needs its own app registration (this is separate from the bot's `CLIENT_ID`, which is a confidential/single-tenant identity and isn't set up for CLI/device-code login).
+Recent versions of the CLI no longer ship with a shared built-in Entra app, so `m365 login` needs its own app registration (this is separate from the bot's `CLIENT_ID`, which is a confidential/single-tenant identity and isn't set up for CLI/device-code login). Register it in the **same tenant** where your team/app lives (`TENANT_ID` above) — logging in with an app from a different tenant will authenticate fine but won't see that tenant's teams or app catalog.
 
 ```
-# register an app for the CLI itself
-CLI_APP_ID=$(az ad app create --display-name "cli-for-m365" --query appId -o tsv)
+# register an app for the CLI itself, in the same tenant as TENANT_ID
+CLI_APP_ID=$(az ad app create --display-name "m365-cli" --query appId -o tsv)
 echo "CLI_APP_ID=$CLI_APP_ID"
 
 # allow device-code/public-client login
 az ad app update --id "$CLI_APP_ID" --is-fallback-public-client true
 
-# grant the Graph delegated permissions the CLI needs to manage Teams apps
-# Microsoft Graph: TeamsAppInstallation.ReadWriteForTeam, TeamworkAppSettings.ReadWrite.All
-az ad app permission add --id "$CLI_APP_ID" --api 00000003-0000-0000-c000-000000000000 --api-permissions \
-  9e19bae1-2623-4c4f-ab6e-2664615ff9a0=Scope 9ce09611-f4f7-4a55-9253-b65f1e6ef004=Scope
-az ad app permission grant --id "$CLI_APP_ID" --api 00000003-0000-0000-c000-000000000000
+# a service principal is required before permissions can be granted
+az ad sp create --id "$CLI_APP_ID"
+
+# add the Graph delegated permissions the CLI needs to manage Teams apps:
+# AppCatalog.ReadWrite.All, TeamsAppInstallation.ReadWriteForTeam,
+# TeamworkAppSettings.ReadWrite.All, Team.ReadBasic.All
+GRAPH_API=00000003-0000-0000-c000-000000000000
+az ad app permission add --id "$CLI_APP_ID" --api "$GRAPH_API" --api-permissions \
+  1ca167d5-1655-44a1-8adf-1414072e1ef9=Scope \
+  2e25a044-2580-450d-8859-42eeb6e996c0=Scope \
+  87c556f0-2bd9-4eed-bd74-5dd8af6eaf7e=Scope \
+  485be79e-c497-4b35-9400-0e3fa7f2a5d4=Scope
+
+# grant/consent to those permissions (requires a Global/Cloud App Admin the
+# first time; re-run `m365 login` after this to pick up the new consent)
+az ad app permission grant --id "$CLI_APP_ID" --api "$GRAPH_API" --scope \
+  "AppCatalog.ReadWrite.All TeamsAppInstallation.ReadWriteForTeam TeamworkAppSettings.ReadWrite.All Team.ReadBasic.All"
 
 # log in using this app
 m365 login --appId "$CLI_APP_ID" --tenant "$TENANT_ID"
 ```
 
-If your tenant requires admin consent for these permissions, an admin will need to approve them once (Entra admin center > Enterprise applications > find the app > Permissions > Grant admin consent), or you can just run `m365 setup`, which automates this registration for you interactively.
+If you change permissions after already logging in, run `m365 logout` then `m365 login` again to force a new token with the updated scopes. Alternatively, skip all of the above and run `m365 setup`, which automates this registration for you interactively.
 
 #### Publish and Install
 
@@ -165,11 +180,13 @@ If your tenant requires admin consent for these permissions, an admin will need 
 # publish the app to your tenant's app catalog (first time only)
 m365 teams app publish --filePath /tmp/strata-teams-app.zip
 
-# after any manifest change, bump manifest.json's "version" and:
+# after any manifest change, bump manifest.json's "version" (e.g. 0.1.0 ->
+# 0.1.1) first, otherwise this fails with "manifest version exists":
 m365 teams app update --id <appCatalogId> --filePath /tmp/strata-teams-app.zip
 
-# find your team ID
-m365 teams team list
+# find your team ID (--joined lists only teams you belong to and needs less
+# privilege than the unflagged form, which lists every team in the tenant)
+m365 teams team list --joined
 
 # install the app into a team
 m365 teams app install --appId <appCatalogId> --teamId <teamId>

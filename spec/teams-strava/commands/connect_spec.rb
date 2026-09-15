@@ -13,27 +13,12 @@ describe TeamsStrava::Commands::Connect do
       let(:team) { Fabricate(:team, subscribed: true) }
       let(:url) { "https://www.strava.com/oauth/authorize?client_id=client-id&redirect_uri=https://strata.playplay.io/connect&response_type=code&scope=activity:read_all&state=#{user.id}" }
 
-      it 'sends a private message with the connect card and acknowledges in the channel' do
-        expect(TeamsStrava::Bot.instance).to receive(:send_dm) do |teams_user_id, tenant_id, message|
-          expect(teams_user_id).to eq user.user_id
-          expect(tenant_id).to eq team.tenant_id
-          content = message.to_h.dig('attachments', 0, 'content')
-          expect(content['type']).to eq 'AdaptiveCard'
-          expect(content['body'].first).to include('type' => 'TextBlock', 'text' => 'Please connect your Strava account.')
-          expect(content['actions'].first).to include('type' => 'Action.OpenUrl', 'title' => 'Connect!', 'url' => url)
-          double(id: 'activity-id', conversation_id: 'conversation-id')
-        end
-
-        expect(response).to eq "I've sent you a private message to connect your Strava account, #{user.teams_mention}."
-      end
-
-      context 'when the user is already connected' do
-        let(:user) { Fabricate(:user, team:, access_token: 'token') }
-
-        it 'does not send a new connect message' do
-          expect(TeamsStrava::Bot.instance).not_to receive(:send_dm)
-          expect(response).to eq "Your Strava account is already connected, #{user.teams_mention}."
-        end
+      it 'connects a user' do
+        expect(response).to be_a(Teams::Api::MessageActivity)
+        content = response.to_h.dig('attachments', 0, 'content')
+        expect(content['type']).to eq 'AdaptiveCard'
+        expect(content['body'].first).to include('type' => 'TextBlock', 'text' => 'Please connect your Strava account.')
+        expect(content['actions'].first).to include('type' => 'Action.OpenUrl', 'title' => 'Connect!', 'url' => url)
       end
     end
 

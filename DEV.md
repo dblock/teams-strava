@@ -66,11 +66,59 @@ az bot create \
   --app-type SingleTenant \
   --appid "$CLIENT_ID" \
   --tenant-id "$TENANT_ID" \
-  --messaging-endpoint "https://example.com/api/messages"
+  --endpoint "https://example.com/api/messages"
 
 # enable the Microsoft Teams channel
 az bot msteams create --resource-group strata-dev --name strata-dev
 ```
+
+### Production Setup
+
+A production deployment should use its own Entra app registration, secrets and
+Azure Bot resource, isolated from dev, ideally billed on a separate Azure
+subscription/payment method. App registrations belong to a Microsoft Entra
+tenant, not a subscription, so you can stay in the *same* tenant and just
+switch to a new subscription for billing isolation.
+
+```
+# create (or have someone create) a new subscription with its own payment
+# method: Azure Portal > Cost Management + Billing > Add > Pay-As-You-Go.
+# This can't be fully automated via CLI unless you already have a Microsoft
+# Customer Agreement billing account with a payment method attached.
+
+az account list --refresh -o table
+az account set --subscription "<new-subscription-id-or-name>"
+
+az group create --name strata-prod --location eastus
+
+CLIENT_ID=$(az ad app create --display-name strata-prod --query appId -o tsv)
+echo "CLIENT_ID=$CLIENT_ID"
+
+CLIENT_SECRET=$(az ad app credential reset --id "$CLIENT_ID" --append \
+  --display-name "strata-prod-secret" --years 1 --query password -o tsv)
+echo "CLIENT_SECRET=$CLIENT_SECRET"
+
+TENANT_ID=$(az account show --query tenantId -o tsv)
+echo "TENANT_ID=$TENANT_ID"
+
+az bot create \
+  --resource-group strata-prod \
+  --name strata-prod \
+  --app-type SingleTenant \
+  --appid "$CLIENT_ID" \
+  --tenant-id "$TENANT_ID" \
+  --endpoint "https://strata.playplay.io/api/messages"
+
+az bot msteams create --resource-group strata-prod --name strata-prod
+```
+
+Set `CLIENT_ID`, `CLIENT_SECRET` and `TENANT_ID` in the production
+environment's secret store (not `.env`, not source control). Multi-tenant
+bot registration is
+[deprecated](https://learn.microsoft.com/en-us/azure/bot-service/bot-service-quickstart-registration?view=azure-bot-service-4.0)
+as of July 31, 2025 — keep `--app-type SingleTenant` and reach customers in
+other Microsoft 365 tenants by publishing the Teams app (see manifest
+section below) rather than by making the bot's own Entra app multi-tenant.
 
 ### Teams App Manifest
 

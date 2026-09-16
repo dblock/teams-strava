@@ -12,4 +12,5 @@
 * 2026/09/16: Make Strata free while in beta: disable trial/subscription expiration enforcement, and fix a broken app download link on the homepage by serving the Teams app package (manifest + icons) on demand from `/strata-teams-app.zip`, cached like map images - [@dblock](https://github.com/dblock).
 * 2026/09/16: Put each sentence of the beta note on its own line - [@dblock](https://github.com/dblock).
 * 2026/09/16: Fix `NameError: uninitialized constant TeamsStrava::TeamsAppPackage::Zip` in production when downloading the Teams app package; `rubyzip` was only available transitively via a test-only gem, now an explicit runtime dependency - [@dblock](https://github.com/dblock).
+* 2026/09/16: Render the Strava activity map at full width instead of a small fixed size in Teams cards - [@dblock](https://github.com/dblock).
 * Your contribution here.

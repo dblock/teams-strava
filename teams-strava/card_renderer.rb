@@ -18,7 +18,7 @@ module TeamsStrava
       body << ::Teams::Cards::FactSet.new(facts:) if facts.any?
 
       image_url = embed.dig(:image, :url) || embed.dig(:thumbnail, :url)
-      body << ::Teams::Cards::Image.new(url: image_url, size: 'Large') if image_url
+      body << ::Teams::Cards::Image.new(url: image_url, size: 'Stretch') if image_url
 
       return nil if body.empty?
 

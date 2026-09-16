@@ -2,6 +2,7 @@ Strata
 ======
 
 [![Tests](https://github.com/dblock/teams-strava/actions/workflows/test.yml/badge.svg)](https://github.com/dblock/teams-strava/actions/workflows/test.yml)
+[![Coverage](https://img.shields.io/badge/coverage-87.95%25-brightgreen)](https://github.com/dblock/teams-strava)
 
 Integrate Strava into Microsoft Teams. Hosted at [strata.playplay.io](https://strata.playplay.io/).
 

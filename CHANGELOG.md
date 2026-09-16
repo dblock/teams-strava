@@ -5,4 +5,5 @@
 * 2026/09/15: Fix activity posts showing up nested/threaded under the message a user typed a command in; Teams appends a `;messageid=...` suffix to `conversation.id` for channel messages, which is now stripped before being stored as a channel/conversation id - [@dblock](https://github.com/dblock).
 * 2026/09/15: Fix `help` rendering as a single run-on paragraph with a stray literal ` ``` `; replaced the Discord-style fenced ASCII table with Teams-friendly markdown headers and bullet lists - [@dblock](https://github.com/dblock).
 * 2026/09/16: Document a separate production Azure Bot/Entra app registration setup in DEV.md (own `CLIENT_ID`/`CLIENT_SECRET`, isolated subscription for billing) and fix the outdated `az bot create --messaging-endpoint` flag to `--endpoint` - [@dblock](https://github.com/dblock).
+* 2026/09/16: Link directly to Slack/Discord Strava bot sites in the homepage footer instead of their GitHub repos - [@dblock](https://github.com/dblock).
 * Your contribution here.

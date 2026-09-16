@@ -5,8 +5,9 @@ describe TeamsStrava::Commands::Stats do
     let(:args) { ['stats'] }
   end
   context 'stats' do
-    it 'requires a subscription' do
-      expect(response).to eq team.trial_message
+    # Beta: free for everyone, subscription enforcement disabled.
+    it 'works without a subscription' do
+      expect(response).to eq 'There are no activities in this channel.'
     end
 
     context 'subscribed team' do

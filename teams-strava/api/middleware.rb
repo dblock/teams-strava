@@ -37,6 +37,13 @@ module Api
         use Rack::Robotz, 'User-Agent' => '*', 'Disallow' => '/api', 'Sitemap' => "#{TeamsStrava::Service.url}/sitemap.xml"
         use Rack::ServerPages
 
+        map '/strata-teams-app.zip' do
+          run lambda { |_env|
+            body = TeamsStrava::TeamsAppPackage.zip
+            [200, { 'content-type' => 'application/zip', 'content-length' => body.bytesize.to_s }, [body]]
+          }
+        end
+
         map '/api/messages' do
           run lambda { |env|
             # Rack::Builder#map strips the mounted prefix from PATH_INFO

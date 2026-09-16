@@ -6,8 +6,9 @@ describe TeamsStrava::Commands::Disconnect do
       let(:args) { ['disconnect'] }
     end
     context 'disconnect' do
-      it 'requires a subscription' do
-        expect(response).to eq team.trial_message
+      # Beta: free for everyone, subscription enforcement disabled.
+      it 'works without a subscription' do
+        expect(response).to eq 'Strava account is not connected.'
       end
 
       context 'subscribed team' do
@@ -40,10 +41,11 @@ describe TeamsStrava::Commands::Disconnect do
         context 'connected user' do
           let(:user) { Fabricate(:user, team:, access_token: 'token', token_type: 'Bearer') }
 
-          it 'requires a subscription' do
-            expect_any_instance_of(User).not_to receive(:refresh_access_token!)
-            expect_any_instance_of(Strava::Api::Client).not_to receive(:deauthorize)
-            expect(response).to include 'Your trial subscription has expired.'
+          # Beta: free for everyone, subscription enforcement disabled.
+          it 'disconnects a user' do
+            expect_any_instance_of(User).to receive(:refresh_access_token!)
+            expect_any_instance_of(Strava::Api::Client).to receive(:deauthorize).and_return(Hashie::Mash.new(access_token: 'token'))
+            expect(response).to eq 'Strava account successfully disconnected.'
           end
         end
       end

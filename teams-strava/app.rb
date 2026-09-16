@@ -44,14 +44,16 @@ module TeamsStrava
           check_access!
           check_subscribed_teams!
           check_stripe_subscribers!
-          deactivate_asleep_teams!
-          check_trials!
+          # Beta: free for everyone, trial/expiration enforcement disabled.
+          # deactivate_asleep_teams!
+          # check_trials!
           prune_activities!
           aggregate_stats!
         end
-        once_and_every 60 * 60 do
-          expire_subscriptions!
-        end
+        # Beta: free for everyone, trial/expiration enforcement disabled.
+        # once_and_every 60 * 60 do
+        #   expire_subscriptions!
+        # end
         continuously 60 do |task, tt|
           users_brag_and_rebrag!(task, tt)
         end
@@ -168,7 +170,8 @@ module TeamsStrava
     def users_brag_and_rebrag!(task, tt)
       log_info_without_repeat "Checking user activities for #{Team.active.count} team(s)."
       Team.no_timeout.active.each do |team|
-        next if team.subscription_expired?
+        # Beta: free for everyone, trial/expiration enforcement disabled.
+        # next if team.subscription_expired?
         next unless team.users.connected_to_strava.any?
 
         log_info_without_repeat "Checking user activities for #{team}, #{team.users.connected_to_strava.count} user(s)."

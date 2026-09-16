@@ -132,6 +132,8 @@ cd ..
 
 Once the app has been published (or sideloaded with a real `id` in the manifest), set `TEAMS_APP_ID` to that GUID so the homepage's "Add to Microsoft Teams" button links directly to the Teams install deep link (`https://teams.microsoft.com/l/app/<TEAMS_APP_ID>`) instead of a manifest download. `TEAMS_APP_INSTALL_URL` can be set instead to override this link entirely (e.g. to a Teams Store listing URL).
 
+Until then, the button falls back to `#{URL}/strata-teams-app.zip`, which is built on demand from `manifest/manifest.json` and the icons (see `TeamsStrava::TeamsAppPackage`) and cached like map images — no need to manually rebuild/commit a zip for the homepage download link.
+
 ### Keys
 
 Create a `.env` file from [.env.sample](.env.sample). Fill the Strava and Teams keys at a minimum, including the `CLIENT_ID`, `CLIENT_SECRET` and `TENANT_ID` obtained above.

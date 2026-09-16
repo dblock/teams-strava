@@ -15,13 +15,13 @@ module TeamsStrava
     # Deep link that opens the Teams client directly on this app's install
     # card (see https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/build-and-test/deep-links).
     # Requires TEAMS_APP_ID (the app's `id` in manifest/manifest.json) once
-    # the app has been published; falls back to a manifest download link
-    # for local development/testing before publishing.
+    # the app has been published; falls back to a manifest zip download
+    # (sideloadable via Teams Admin Center) before publishing to the store.
     def self.install_url
       return ENV['TEAMS_APP_INSTALL_URL'] if ENV['TEAMS_APP_INSTALL_URL']
       return "https://teams.microsoft.com/l/app/#{ENV['TEAMS_APP_ID']}" if ENV['TEAMS_APP_ID']
 
-      "#{url}/manifest"
+      "#{url}/strata-teams-app.zip"
     end
 
     def self.start!

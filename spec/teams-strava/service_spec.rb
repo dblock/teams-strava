@@ -40,8 +40,8 @@ describe TeamsStrava::Service do
   end
 
   describe '#install_url' do
-    it 'defaults to a manifest download link' do
-      expect(described_class.install_url).to eq "#{described_class.url}/manifest"
+    it 'defaults to the app package download link' do
+      expect(described_class.install_url).to eq "#{described_class.url}/strata-teams-app.zip"
     end
 
     context 'with TEAMS_APP_ID' do

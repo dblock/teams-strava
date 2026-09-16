@@ -7,7 +7,35 @@ module TeamsStrava
     module_function
 
     def render_card(embed)
-      return nil unless embed
+      body = card_body(embed)
+      return nil if body.empty?
+
+      ::Teams::Cards::AdaptiveCard.new(*body)
+    end
+
+    # Renders a message, which is either a plain string or a hash with
+    # :content and/or :embeds (the shape produced by Activity#to_message,
+    # TeamStats#to_message, etc.) into something ctx.post/Bot#post accepts.
+    #
+    # All embeds are combined into a single Adaptive Card (one attachment).
+    # Teams' update API errors with "Activity resulted into multiple skype
+    # activities" (400 BadSyntax) when a single activity update carries more
+    # than one attachment (e.g. an activity embed plus photo embeds), so we
+    # can't render one card per embed the way Discord/Slack do.
+    def render_message(message)
+      return message unless message.is_a?(Hash)
+
+      embeds = Array(message[:embeds]).compact
+      return message[:content] if embeds.empty?
+
+      activity = ::Teams::Api::MessageActivity.new(message[:content])
+      body = embeds.flat_map { |embed| card_body(embed) }
+      activity.add_card(::Teams::Cards::AdaptiveCard.new(*body)) unless body.empty?
+      activity
+    end
+
+    def card_body(embed)
+      return [] unless embed
 
       body = []
       body.concat(author_blocks(embed[:author])) if embed[:author]
@@ -20,26 +48,7 @@ module TeamsStrava
       image_url = embed.dig(:image, :url) || embed.dig(:thumbnail, :url)
       body << ::Teams::Cards::Image.new(url: image_url, size: 'Stretch') if image_url
 
-      return nil if body.empty?
-
-      ::Teams::Cards::AdaptiveCard.new(*body)
-    end
-
-    # Renders a message, which is either a plain string or a hash with
-    # :content and/or :embeds (the shape produced by Activity#to_message,
-    # TeamStats#to_message, etc.) into something ctx.post/Bot#post accepts.
-    def render_message(message)
-      return message unless message.is_a?(Hash)
-
-      embeds = Array(message[:embeds]).compact
-      return message[:content] if embeds.empty?
-
-      activity = ::Teams::Api::MessageActivity.new(message[:content])
-      embeds.each do |embed|
-        card = render_card(embed)
-        activity.add_card(card) if card
-      end
-      activity
+      body
     end
 
     def title_block(embed)

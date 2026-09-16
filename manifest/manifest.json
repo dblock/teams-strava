@@ -1,7 +1,7 @@
 {
   "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
   "manifestVersion": "1.19",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "id": "7b9ffc5c-defc-4b8a-9b31-8f55efa247c3",
   "developer": {
     "name": "Vestris LLC",
@@ -24,7 +24,7 @@
   "accentColor": "#FC4C02",
   "bots": [
     {
-      "botId": "fcd9eff1-ce37-4c87-9c78-eb28bcf52180",
+      "botId": "19970bd0-a22d-4e33-aa26-7fbf95a75d7c",
       "scopes": ["team", "groupChat", "personal"],
       "supportsFiles": false,
       "isNotificationOnly": false,

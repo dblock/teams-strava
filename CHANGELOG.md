@@ -8,4 +8,5 @@
 * 2026/09/16: Link directly to Slack/Discord Strava bot sites in the homepage footer instead of their GitHub repos - [@dblock](https://github.com/dblock).
 * 2026/09/16: Increase subscription price from $19.99/yr to $24.99/yr - [@dblock](https://github.com/dblock).
 * 2026/09/16: Add `script/verify_production.rb`, a production sanity check for env vars, Bot Framework auth, Stripe plan/price, MongoDB and Strava auth - [@dblock](https://github.com/dblock).
+* 2026/09/16: Point the Teams app manifest at the production bot registration and bump manifest version to 1.0.0, ready for Teams Store submission - [@dblock](https://github.com/dblock).
 * Your contribution here.

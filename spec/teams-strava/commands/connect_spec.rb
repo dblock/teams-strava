@@ -28,7 +28,7 @@ describe TeamsStrava::Commands::Connect do
       end
 
       it 'prevents new connections' do
-        expect(response).to eq "Your trial subscription has expired. Subscribe your team for $19.99 a year at https://strata.playplay.io/subscribe?team_id=#{team.id} to continue receiving Strava activities in Teams. Proceeds go to NYRR."
+        expect(response).to eq "Your trial subscription has expired. Subscribe your team for $24.99 a year at https://strata.playplay.io/subscribe?team_id=#{team.id} to continue receiving Strava activities in Teams. Proceeds go to NYRR."
       end
     end
   end

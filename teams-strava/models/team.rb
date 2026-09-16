@@ -341,7 +341,7 @@ class Team
   end
 
   def subscribe_text
-    "Subscribe your team for $19.99 a year at #{TeamsStrava::Service.url}/subscribe?team_id=#{id} to continue receiving Strava activities in Teams. Proceeds go to NYRR."
+    "Subscribe your team for $24.99 a year at #{TeamsStrava::Service.url}/subscribe?team_id=#{id} to continue receiving Strava activities in Teams. Proceeds go to NYRR."
   end
 
   def stripe_customer_subscriptions_info

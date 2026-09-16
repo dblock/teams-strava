@@ -16,7 +16,7 @@
     <p id='messages' />
     <p id='subscribe'>
       <button id='subscribeButton' class='stripe-button-el'>
-          <span style='display: block; min-height: 30px;'>Pay $19.99 with Card</span>
+          <span style='display: block; min-height: 30px;'>Pay $24.99 with Card</span>
       </button>
       <p>
         <img src='/img/stripe.png' width='119' height='26' alt="Powered by Stripe"></img>
@@ -37,7 +37,7 @@
             TeamsStrava.message('Team <b>' + team.team_name + '</b> is already subscribed, thank you for your support.');
             $('#subscribeButton').remove();
           } else if (team.id && team.team_name) {
-            TeamsStrava.message('Subscribe team <b>' + team.team_name + '</b> for $19.99/yr.');
+            TeamsStrava.message('Subscribe team <b>' + team.team_name + '</b> for $24.99/yr.');
           } else {
             $('#subscribeButton').remove();
             TeamsStrava.errorMessage('Missing or invalid team ID.');
@@ -67,7 +67,7 @@
           });
 
           $('#subscribeButton').on('click', function(e) {
-            var amount = 1999;
+            var amount = 2499;
             handler.open({
               name: 'Strata',
               description: 'Yearly Subscription',

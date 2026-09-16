@@ -28,7 +28,7 @@ describe TeamsStrava::Commands::Resubscribe do
     context 'with a plan' do
       include_context 'stripe mock'
       before do
-        stripe_helper.create_plan(id: 'teams-playplay-yearly', amount: 1999, nickname: 'Plan', product: product.id)
+        stripe_helper.create_plan(id: 'teams-playplay-yearly', amount: 2499, nickname: 'Plan', product: product.id)
       end
 
       context 'a customer' do
@@ -57,7 +57,7 @@ describe TeamsStrava::Commands::Resubscribe do
             end
 
             it 'displays that the subscription will continue to auto-renew' do
-              expect(response).to eq "Subscription to Plan ($19.99) will continue to auto-renew on #{current_period_end}."
+              expect(response).to eq "Subscription to Plan ($24.99) will continue to auto-renew on #{current_period_end}."
             end
           end
 
@@ -84,7 +84,7 @@ describe TeamsStrava::Commands::Resubscribe do
 
             context 'valid subscription id' do
               it 'resubscribes' do
-                expect(response).to eq "Subscription to Plan ($19.99) will now auto-renew on #{current_period_end}."
+                expect(response).to eq "Subscription to Plan ($24.99) will now auto-renew on #{current_period_end}."
                 team.reload
                 expect(team.subscribed).to be true
                 expect(team.stripe_customer_id).not_to be_nil

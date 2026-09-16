@@ -41,7 +41,7 @@ describe TeamsStrava::App do
 
   context 'subscribed' do
     include_context 'stripe mock'
-    let(:plan) { stripe_helper.create_plan(id: 'strata-yearly', amount: 1999, nickname: 'Plan', product: product.id) }
+    let(:plan) { stripe_helper.create_plan(id: 'strata-yearly', amount: 2499, nickname: 'Plan', product: product.id) }
     let(:customer) { Stripe::Customer.create(source: stripe_helper.generate_card_token, plan: plan.id, email: 'foo@bar.com', metadata: { name: 'Team', team_id: 'team_id' }) }
     let!(:team) { Fabricate(:team, subscribed: true, stripe_customer_id: customer.id) }
 
@@ -55,7 +55,7 @@ describe TeamsStrava::App do
         subscription = customer.subscriptions.data.first
         subscription['status'] = 'past_due'
         allow(Stripe::Subscription).to receive(:list).and_return([subscription])
-        expect_any_instance_of(Team).to receive(:inform_everyone!).with("Your subscription to Plan ($19.99) is past due. #{team.update_cc_text}")
+        expect_any_instance_of(Team).to receive(:inform_everyone!).with("Your subscription to Plan ($24.99) is past due. #{team.update_cc_text}")
         subject.send(:check_subscribed_teams!)
         expect(team.reload.past_due_informed_at).not_to be_nil
       end
@@ -74,7 +74,7 @@ describe TeamsStrava::App do
         subscription = customer.subscriptions.data.first
         subscription['status'] = 'past_due'
         allow(Stripe::Subscription).to receive(:list).and_return([subscription])
-        expect_any_instance_of(Team).to receive(:inform_everyone!).with("Your subscription to Plan ($19.99) is past due. #{team.update_cc_text}")
+        expect_any_instance_of(Team).to receive(:inform_everyone!).with("Your subscription to Plan ($24.99) is past due. #{team.update_cc_text}")
         subject.send(:check_subscribed_teams!)
       end
 
@@ -83,7 +83,7 @@ describe TeamsStrava::App do
         subscription['status'] = 'canceled'
         team.update_attributes!(past_due_informed_at: 1.hour.ago)
         allow(Stripe::Subscription).to receive(:list).and_return([subscription])
-        expect_any_instance_of(Team).to receive(:inform_everyone!).with('Your subscription to Plan ($19.99) was canceled and your team has been downgraded. Thank you for being a customer!')
+        expect_any_instance_of(Team).to receive(:inform_everyone!).with('Your subscription to Plan ($24.99) was canceled and your team has been downgraded. Thank you for being a customer!')
         subject.send(:check_subscribed_teams!)
         expect(team.reload.subscribed?).to be false
         expect(team.reload.past_due_informed_at).to be_nil

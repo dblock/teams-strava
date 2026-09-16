@@ -25,7 +25,7 @@ describe TeamsStrava::Commands::Subscription do
     context 'with a plan' do
       include_context 'stripe mock'
       before do
-        stripe_helper.create_plan(id: 'teams-playplay-yearly', amount: 1999, nickname: 'Plan', product: product.id)
+        stripe_helper.create_plan(id: 'teams-playplay-yearly', amount: 2499, nickname: 'Plan', product: product.id)
       end
 
       context 'a customer' do
@@ -51,7 +51,7 @@ describe TeamsStrava::Commands::Subscription do
             current_period_end = Time.at(customer.subscriptions.first.current_period_end).strftime('%B %d, %Y')
             customer_info = [
               "Customer since #{Time.at(customer.created).strftime('%B %d, %Y')}.",
-              "Subscribed to Plan ($19.99), will auto-renew on #{current_period_end}.",
+              "Subscribed to Plan ($24.99), will auto-renew on #{current_period_end}.",
               "On file Visa card, #{card.name} ending with #{card.last4}, expires #{card.exp_month}/#{card.exp_year}.",
               team.update_cc_text
             ].join("\n")
@@ -71,7 +71,7 @@ describe TeamsStrava::Commands::Subscription do
               Time.at(customer.subscriptions.first.current_period_end).strftime('%B %d, %Y')
               customer_info = [
                 "Customer since #{Time.at(customer.created).strftime('%B %d, %Y')}.",
-                "Past Due subscription created #{Time.at(customer.subscriptions.first.created).strftime('%B %d, %Y')} to Plan ($19.99).",
+                "Past Due subscription created #{Time.at(customer.subscriptions.first.created).strftime('%B %d, %Y')} to Plan ($24.99).",
                 "On file Visa card, #{card.name} ending with #{card.last4}, expires #{card.exp_month}/#{card.exp_year}.",
                 team.update_cc_text
               ].join("\n")
@@ -89,7 +89,7 @@ describe TeamsStrava::Commands::Subscription do
             current_period_end = Time.at(customer.subscriptions.first.current_period_end).strftime('%B %d, %Y')
             customer_info = [
               "Customer since #{Time.at(customer.created).strftime('%B %d, %Y')}.",
-              "Subscribed to Plan ($19.99), will auto-renew on #{current_period_end}."
+              "Subscribed to Plan ($24.99), will auto-renew on #{current_period_end}."
             ].join("\n")
             expect(response).to eq customer_info
           end

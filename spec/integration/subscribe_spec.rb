@@ -43,7 +43,7 @@ describe 'Subscribe', :js, type: :feature do
 
       it 'subscribes team' do
         visit "/subscribe?team_id=#{team.id}"
-        expect(find_by_id('messages')).to have_text("Subscribe team #{team.team_name} for $19.99/yr.")
+        expect(find_by_id('messages')).to have_text("Subscribe team #{team.team_name} for $24.99/yr.")
 
         allow_any_instance_of(Team).to receive(:inform_everyone!)
 
@@ -84,7 +84,7 @@ describe 'Subscribe', :js, type: :feature do
 
       it 'subscribes team' do
         visit "/subscribe?team_id=#{team.id}"
-        expect(find_by_id('messages')).to have_text("Subscribe team #{team.team_name} for $19.99/yr.")
+        expect(find_by_id('messages')).to have_text("Subscribe team #{team.team_name} for $24.99/yr.")
 
         allow_any_instance_of(Team).to receive(:inform_everyone!)
 

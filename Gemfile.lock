@@ -363,6 +363,7 @@ DEPENDENCIES
   rubocop-rake
   rubocop-rspec
   ruby-enum
+  rubyzip
   selenium-webdriver
   strava-ruby-client
   stripe (~> 13.5)

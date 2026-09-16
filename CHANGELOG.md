@@ -10,4 +10,6 @@
 * 2026/09/16: Add `script/verify_production.rb`, a production sanity check for env vars, Bot Framework auth, Stripe plan/price, MongoDB and Strava auth - [@dblock](https://github.com/dblock).
 * 2026/09/16: Point the Teams app manifest at the production bot registration and bump manifest version to 1.0.0, ready for Teams Store submission - [@dblock](https://github.com/dblock).
 * 2026/09/16: Make Strata free while in beta: disable trial/subscription expiration enforcement, and fix a broken app download link on the homepage by serving the Teams app package (manifest + icons) on demand from `/strata-teams-app.zip`, cached like map images - [@dblock](https://github.com/dblock).
+* 2026/09/16: Put each sentence of the beta note on its own line - [@dblock](https://github.com/dblock).
+* 2026/09/16: Fix `NameError: uninitialized constant TeamsStrava::TeamsAppPackage::Zip` in production when downloading the Teams app package; `rubyzip` was only available transitively via a test-only gem, now an explicit runtime dependency - [@dblock](https://github.com/dblock).
 * Your contribution here.

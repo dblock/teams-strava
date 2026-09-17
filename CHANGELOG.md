@@ -17,4 +17,5 @@
 * 2026/09/16: Add SimpleCov test coverage reporting and a coverage badge to the README - [@dblock](https://github.com/dblock).
 * 2026/09/17: Add a `Content-Disposition` header to the Teams app package zip download to avoid triggering browser/Safe Browsing "uncommon file" warnings - [@dblock](https://github.com/dblock).
 * 2026/09/17: Fix privacy policy to accurately disclose that we collect a user's Microsoft Teams user ID and display name - [@dblock](https://github.com/dblock).
+* 2026/09/17: Add a terms of use page, linked from the homepage footer and `sitemap.xml`, to satisfy the manifest's `termsOfUseUrl` and the Teams Store submission requirements - [@dblock](https://github.com/dblock).
 * Your contribution here.

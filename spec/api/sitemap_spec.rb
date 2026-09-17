@@ -10,6 +10,7 @@ describe Api do
     expect(last_response.body).to include '<loc>https://strata.playplay.io/</loc>'
     expect(last_response.body).to include '<loc>https://strata.playplay.io/help.html</loc>'
     expect(last_response.body).to include '<loc>https://strata.playplay.io/privacy.html</loc>'
+    expect(last_response.body).to include '<loc>https://strata.playplay.io/terms.html</loc>'
   end
 
   it 'returns valid, well-formed XML' do

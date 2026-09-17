@@ -19,4 +19,5 @@
 * 2026/09/17: Fix privacy policy to accurately disclose that we collect a user's Microsoft Teams user ID and display name - [@dblock](https://github.com/dblock).
 * 2026/09/17: Add a terms of use page, linked from the homepage footer and `sitemap.xml`, to satisfy the manifest's `termsOfUseUrl` and the Teams Store submission requirements - [@dblock](https://github.com/dblock).
 * 2026/09/17: Add `store/screenshots`, screenshots for the Teams Store listing submission - [@dblock](https://github.com/dblock).
+* 2026/09/17: Add `store/publisher-logo.png`, a 240x240 publisher logo for the Teams Store listing - [@dblock](https://github.com/dblock).
 * Your contribution here.

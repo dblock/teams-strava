@@ -7,6 +7,7 @@ describe Api do
     get '/strata-teams-app.zip'
     expect(last_response.status).to eq 200
     expect(last_response.headers['Content-Type']).to eq 'application/zip'
+    expect(last_response.headers['Content-Disposition']).to eq 'attachment; filename="strata-teams-app.zip"'
     expect(last_response.body).to eq TeamsStrava::TeamsAppPackage.zip
   end
 end

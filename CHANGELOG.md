@@ -15,4 +15,5 @@
 * 2026/09/16: Render the Strava activity map at full width instead of a small fixed size in Teams cards - [@dblock](https://github.com/dblock).
 * 2026/09/16: Fix `HTTP request failed with status 400: {"error" => {"code" => "BadSyntax", "message" => "Activity resulted into multiple skype activities"}}` when updating an activity message with photos; combine all embeds (activity + photos) into a single Adaptive Card/attachment instead of one card per embed - [@dblock](https://github.com/dblock).
 * 2026/09/16: Add SimpleCov test coverage reporting and a coverage badge to the README - [@dblock](https://github.com/dblock).
+* 2026/09/17: Add a `Content-Disposition` header to the Teams app package zip download to avoid triggering browser/Safe Browsing "uncommon file" warnings - [@dblock](https://github.com/dblock).
 * Your contribution here.

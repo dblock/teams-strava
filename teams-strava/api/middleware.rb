@@ -40,7 +40,12 @@ module Api
         map '/strata-teams-app.zip' do
           run lambda { |_env|
             body = TeamsStrava::TeamsAppPackage.zip
-            [200, { 'content-type' => 'application/zip', 'content-length' => body.bytesize.to_s }, [body]]
+            headers = {
+              'content-type' => 'application/zip',
+              'content-length' => body.bytesize.to_s,
+              'content-disposition' => 'attachment; filename="strata-teams-app.zip"'
+            }
+            [200, headers, [body]]
           }
         end
 

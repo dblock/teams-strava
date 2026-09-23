@@ -3,6 +3,8 @@ require 'bundler'
 
 Bundler.setup :default, :development
 
+Dir.glob('lib/tasks/**/*.rake').each { |f| load f }
+
 unless ENV['RACK_ENV'] == 'production'
   require 'rspec/core'
   require 'rspec/core/rake_task'

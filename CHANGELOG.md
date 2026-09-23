@@ -1,5 +1,6 @@
 ### Changelog
 
+* 2026/09/23: Upgrade the Teams app manifest to schema 1.25, enable tier 1 channel features, and add a reproducible Store package build task - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2026/09/14: Reply with a friendly error when the app is installed at personal scope instead of a Teams channel/team - [@dblock](https://github.com/dblock).
 * 2026/09/15: Fix `Strava::Errors::Fault: Bad Request` when ensuring the Strava webhook subscription after the callback URL changes (e.g. a new ngrok URL); a stale subscription at the old URL is now deleted before creating the new one - [@dblock](https://github.com/dblock).
 * 2026/09/15: Fix activity posts showing up nested/threaded under the message a user typed a command in; Teams appends a `;messageid=...` suffix to `conversation.id` for channel messages, which is now stripped before being stored as a channel/conversation id - [@dblock](https://github.com/dblock).

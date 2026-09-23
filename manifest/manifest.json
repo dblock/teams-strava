@@ -1,11 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
-  "manifestVersion": "1.19",
-  "version": "1.0.0",
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.25/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.25",
+  "supportsChannelFeatures": "tier1",
+  "version": "1.0.1",
   "id": "7b9ffc5c-defc-4b8a-9b31-8f55efa247c3",
   "developer": {
     "name": "Vestris LLC",
-    "websiteUrl": "https://www.vestris.com",
+    "websiteUrl": "https://strata.playplay.io",
     "privacyUrl": "https://strata.playplay.io/privacy",
     "termsOfUseUrl": "https://strata.playplay.io/terms"
   },

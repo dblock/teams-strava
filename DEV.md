@@ -59,17 +59,24 @@ echo "CLIENT_SECRET=$CLIENT_SECRET"
 TENANT_ID=$(az account show --query tenantId -o tsv)
 echo "TENANT_ID=$TENANT_ID"
 
-# create the Azure Bot resource (messaging endpoint can be a placeholder for now)
+# create and configure the Azure Bot resource (the icon API is only available
+# after the resource exists; Azure requires a public PNG URL under 30 KB)
 az bot create \
   --resource-group strata-dev \
   --name strata-dev \
+  --display-name "Strata (Development)" \
+  --description "Strata connects Strava with Microsoft Teams. It posts members' activities to a team channel and provides shared leaderboards, statistics, and configurable activity updates." \
   --app-type SingleTenant \
   --appid "$CLIENT_ID" \
   --tenant-id "$TENANT_ID" \
-  --endpoint "https://example.com/api/messages"
-
-# enable the Microsoft Teams channel
-az bot msteams create --resource-group strata-dev --name strata-dev
+  --endpoint "https://example.com/api/messages" && \
+az bot update \
+  --resource-group strata-dev \
+  --name strata-dev \
+  --icon-url "https://raw.githubusercontent.com/dblock/teams-strava/master/store/azure-bot-icon.png" && \
+az bot msteams create \
+  --resource-group strata-dev \
+  --name strata-dev
 ```
 
 ### Production Setup
@@ -101,16 +108,27 @@ echo "CLIENT_SECRET=$CLIENT_SECRET"
 TENANT_ID=$(az account show --query tenantId -o tsv)
 echo "TENANT_ID=$TENANT_ID"
 
+# create and configure the Azure Bot resource
 az bot create \
   --resource-group strata-prod \
   --name strata-prod \
+  --display-name "Strata" \
+  --description "Strata connects Strava with Microsoft Teams. It posts members' activities to a team channel and provides shared leaderboards, statistics, and configurable activity updates." \
   --app-type SingleTenant \
   --appid "$CLIENT_ID" \
   --tenant-id "$TENANT_ID" \
-  --endpoint "https://strata.playplay.io/api/messages"
-
-az bot msteams create --resource-group strata-prod --name strata-prod
+  --endpoint "https://strata.playplay.io/api/messages" && \
+az bot update \
+  --resource-group strata-prod \
+  --name strata-prod \
+  --icon-url "https://raw.githubusercontent.com/dblock/teams-strava/master/store/azure-bot-icon.png" && \
+az bot msteams create \
+  --resource-group strata-prod \
+  --name strata-prod
 ```
+
+The Azure resource name remains `strata-prod`, but Teams displays the bot
+profile's `displayName` to users.
 
 Set `CLIENT_ID`, `CLIENT_SECRET` and `TENANT_ID` in the production
 environment's secret store (not `.env`, not source control). Multi-tenant
@@ -253,4 +271,3 @@ m365 teams app install --appId <appCatalogId> --teamId <teamId>
 `<appCatalogId>` is printed by `teams app publish`/returned by `m365 teams app list`; it's different from the manifest's own `id`. Some of these operations require a Teams Service Admin or Global Admin account to consent to the underlying `TeamsAppInstallation.*` permissions the first time.
 
 Once installed, @mention the bot, e.g. `@Strata help`.
-

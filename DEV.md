@@ -63,6 +63,7 @@ echo "TENANT_ID=$TENANT_ID"
 az bot create \
   --resource-group strata-dev \
   --name strata-dev \
+  --display-name "Strata (Development)" \
   --app-type SingleTenant \
   --appid "$CLIENT_ID" \
   --tenant-id "$TENANT_ID" \
@@ -104,12 +105,24 @@ echo "TENANT_ID=$TENANT_ID"
 az bot create \
   --resource-group strata-prod \
   --name strata-prod \
+  --display-name "Strata" \
   --app-type SingleTenant \
   --appid "$CLIENT_ID" \
   --tenant-id "$TENANT_ID" \
   --endpoint "https://strata.playplay.io/api/messages"
 
 az bot msteams create --resource-group strata-prod --name strata-prod
+```
+
+The Azure resource name remains `strata-prod`, but Teams displays the bot
+profile's `displayName` to users. To fix an existing production bot that was
+created without `--display-name`, update its profile:
+
+```
+az bot update \
+  --resource-group strata-prod \
+  --name strata-prod \
+  --display-name "Strata"
 ```
 
 Set `CLIENT_ID`, `CLIENT_SECRET` and `TENANT_ID` in the production
@@ -253,4 +266,3 @@ m365 teams app install --appId <appCatalogId> --teamId <teamId>
 `<appCatalogId>` is printed by `teams app publish`/returned by `m365 teams app list`; it's different from the manifest's own `id`. Some of these operations require a Teams Service Admin or Global Admin account to consent to the underlying `TeamsAppInstallation.*` permissions the first time.
 
 Once installed, @mention the bot, e.g. `@Strata help`.
-

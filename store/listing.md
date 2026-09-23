@@ -41,3 +41,31 @@ Daniel Doubrovkine, Vestris LLC - dblock@vestris.com
 
 - Privacy: https://strata.playplay.io/privacy
 - Terms of use: https://strata.playplay.io/terms
+
+## Testing instructions for reviewers
+
+Reviewers will need a Strava account to test the `connect` flow. Strava
+signup is free and instant at https://www.strava.com/register - no need
+for us to provide a shared test account/password.
+
+- Teams tenant: fed34e12-9ac2-4aed-ad32-7afb9634f204 (test tenant where
+  Strata is installed)
+
+Steps:
+
+1. Create a free Strava account at https://www.strava.com/register (or use
+   an existing one).
+2. In a Teams channel, `@mention` Strata and send `connect`. Follow the link
+   and log in with your Strava account to authorize access.
+3. Trigger a new activity so Strata posts it to the channel. Either:
+   - On strava.com, use **+ (top right) > Manual Entry** to log an activity
+     (type, distance, duration - no GPS file needed), or
+   - Upload a GPX file for a version that includes a map: **+ > Upload
+     Activity > select file on the left > Choose Files**, pick a sample GPX
+     file (e.g. download one from
+     https://raw.githubusercontent.com/dblock/teams-strava/master/store/Brighton_Beach.gpx),
+     give it a title, then **Save & View**.
+   Strata syncs new activities via a Strava webhook within a few seconds.
+4. In the channel, try `leaderboard`, `stats`, `set units metric`, and
+   `help` to see the other commands.
+5. `disconnect` to unlink your Strava account when done, if desired.

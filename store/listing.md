@@ -68,6 +68,8 @@ Upload the captioned PNG files in `store/screenshots/` in the order below. Each 
 
 Reuse [screenshot-background.png](screenshot-background.png), the original 1366x768 abstract canvas without captions or app UI. The editable vector source is [screenshot-background.svg](screenshot-background.svg); export it at its intrinsic 1366x768 size when changing the artwork. These are source assets, not additional screenshots to upload to the Store.
 
+The website stretches a public copy of the same artwork, [public/img/screenshot-background.svg](../public/img/screenshot-background.svg), across a fixed viewport-sized background so it does not shift when help topics expand. Keep its artwork in sync when editing the vector source, preserving the public copy's `preserveAspectRatio="none"` setting. The homepage's hero image, [public/img/strata-teams.png](../public/img/strata-teams.png), is the original transparent marathon screenshot from the first submission, without the Store captions or background.
+
 Center the headline at x=683, top=16 using Arial Bold at 34px in `#171717`, and the supporting caption at x=683, top=60 using Arial at 20px in `#292929`. Add a 48x4px `#314F80` divider centered horizontally at top=88. Remove unused margins from the Teams capture, preserve its aspect ratio, and fit the complete window within 1318x648px, horizontally centered at top=104. Do not cover app UI with captions. Export at 1366x768 and keep the PNG under 1,024 KB.
 
 ## Testing instructions for reviewers

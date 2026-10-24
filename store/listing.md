@@ -16,7 +16,9 @@ Use this only as separate attribution, never as part of the app name. The websit
 
 ## Validation update
 
-The updated package is `store/pkg/strata-teams-app.zip` (manifest version 1.0.4). Send it and the updated `store/Strata-testing-instructions.pdf` through the existing Ticket #5811188 email thread. Do not resubmit in Partner Center until Microsoft gives final approval by email. Portal app-name fields must be updated separately; repository changes do not update them.
+The updated package is `store/pkg/strata-teams-app.zip` (manifest version 1.0.5). Send it and the updated `store/Strata-testing-instructions.pdf` through the existing Ticket #5811188 email thread. Do not resubmit in Partner Center until Microsoft gives final approval by email. Portal app-name fields must be updated separately; repository changes do not update them.
+
+The package offers team installation and commands in Teams channels only. Personal and group chat installation is not supported.
 
 ## Short description (max 100 characters)
 

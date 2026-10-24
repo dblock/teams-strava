@@ -16,7 +16,7 @@ Use this only as separate attribution, never as part of the app name. The websit
 
 ## Validation update
 
-The updated package is `store/pkg/strata-teams-app.zip` (manifest version 1.0.2). Send it and the updated `store/Strata-testing-instructions.pdf` through the existing Ticket #5811188 email thread. Do not resubmit in Partner Center until Microsoft gives final approval by email. Portal app-name fields must be updated separately; repository changes do not update them.
+The updated package is `store/pkg/strata-teams-app.zip` (manifest version 1.0.3). Send it and the updated `store/Strata-testing-instructions.pdf` through the existing Ticket #5811188 email thread. Do not resubmit in Partner Center until Microsoft gives final approval by email. Portal app-name fields must be updated separately; repository changes do not update them.
 
 ## Short description (max 100 characters)
 
@@ -46,11 +46,13 @@ Commands:
 - `subscription` - show subscription info and a link to update the payment method
 - `help` - get a helpful message listing all commands
 
+An active Strava account is required. [Sign up for Strava](https://www.strava.com/register) | [Get started](https://strata.playplay.io/help.html#get-started) | [Contact support](https://strata.playplay.io/help.html#support) | [Help](https://strata.playplay.io/help.html)
+
 Strata is not officially affiliated with Strava.
 
 ## Support / contact
 
-Daniel Doubrovkine, Vestris LLC - dblock@vestris.com
+Daniel Doubrovkine, Vestris LLC - [dblock@vestris.com](mailto:dblock@vestris.com)
 
 ## Privacy and terms
 

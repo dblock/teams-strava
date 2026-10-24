@@ -19,6 +19,29 @@
       This bot is powered by Strava and posts your Strava activities to Microsoft Teams.
       It is not made by, nor is officially affiliated with <a target="_blank" href="https://www.strava.com">Strava</a>.
     </p>
+    <section id="get-started" style="max-width: 800px; margin: auto; text-align: left">
+      <h2>Get started</h2>
+      <p>
+        You need access to a Microsoft Teams team or channel and an active Strava account.
+        If you do not have a Strava account, <a href="https://www.strava.com/register">sign up for Strava</a>.
+      </p>
+      <ol>
+        <li>
+          <a href="<%= TeamsStrava::Service.install_url %>">Install Strata</a> in the team or channel where you want activities to appear.
+          If your organization's app policies prevent installation, ask your Teams administrator to approve or upload the app.
+        </li>
+        <li>In that channel, send <b>@Strata help</b> to confirm that the bot responds.</li>
+        <li>
+          Send <b>@Strata connect</b> and select <b>Connect!</b>.
+          Sign in to Strava and authorize Strata; sign-in and authorization take place outside Teams.
+        </li>
+        <li>Save a new activity in Strava after connecting, then look for its activity card in the connected channel.</li>
+      </ol>
+      <p>
+        To stop sharing, send <b>@Strata disconnect</b> to unlink your Strava account.
+        Disconnecting does not remove activity cards already posted in Teams; use Teams' message controls to delete earlier posts where your permissions allow it.
+      </p>
+    </section>
     <p>&nbsp;</p>
     <p>
       <img src="img/help.png" alt="Strata Microsoft Teams commands example">
@@ -50,6 +73,14 @@
       Turn maps off with <b>@Strata set maps off</b>, display thumbnails with <b>@Strata set maps thumb</b> and full maps with <b>@Strata set maps full</b> (default).
       Disconnect users with <b>@Strata disconnect @mention</b>.
     </p>
+    <section id="support">
+      <h2>Contact support</h2>
+      <p>
+        For setup help or to report a problem, email <a href="mailto:dblock@vestris.com">dblock@vestris.com</a>.
+        Include the command, channel or chat type, approximate time and time zone, and any error message.
+        Do not send passwords or access tokens.
+      </p>
+    </section>
     <%= partial 'public/partials/_footer.html.erb' %>
   </body>
 </html>

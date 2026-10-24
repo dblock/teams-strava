@@ -2,7 +2,7 @@
   "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.25/MicrosoftTeams.schema.json",
   "manifestVersion": "1.25",
   "supportsChannelFeatures": "tier1",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "id": "7b9ffc5c-defc-4b8a-9b31-8f55efa247c3",
   "developer": {
     "name": "Vestris LLC",
@@ -20,7 +20,7 @@
   },
   "description": {
     "short": "Strata connects Strava with Microsoft Teams.",
-    "full": "Strata posts your team's Strava activities to a Microsoft Teams channel, tracks leaderboards and stats, and lets everyone connect their own Strava account."
+    "full": "Strata posts your team's Strava activities to a Microsoft Teams channel, tracks leaderboards and stats, and lets everyone connect their own Strava account.\n\nAn active Strava account is required. [Sign up for Strava](https://www.strava.com/register) | [Get started](https://strata.playplay.io/help.html#get-started) | [Contact support](https://strata.playplay.io/help.html#support) | [Help](https://strata.playplay.io/help.html)"
   },
   "accentColor": "#FC4C02",
   "bots": [

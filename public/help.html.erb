@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <title>Strata: Help</title>
@@ -8,79 +9,82 @@
     <meta name="twitter:title" content="Strata: Help">
     <meta name="twitter:description" content="How to use Strata: connect Strava, view leaderboards and stats, configure sync, privacy, retention, timezone, units, fields, and maps for your Teams channel.">
   </head>
-  <body>
-    <p class='icon'>
-      <a href='/'><img src='img/icon.png' alt="Strata logo"></a>
-    </p>
-    <p>
-      <h1>Strata: Help</h1>
-    </p>
-    <p>
-      This bot is powered by Strava and posts your Strava activities to Microsoft Teams.
-      It is not made by, nor is officially affiliated with <a target="_blank" href="https://www.strava.com">Strava</a>.
-    </p>
-    <section id="get-started" style="max-width: 800px; margin: auto; text-align: left">
-      <h2>Get started</h2>
-      <p>
-        You need access to a Microsoft Teams team or channel and an active Strava account.
-        If you do not have a Strava account, <a href="https://www.strava.com/register">sign up for Strava</a>.
-      </p>
-      <ol>
-        <li>
-          <a href="<%= TeamsStrava::Service.install_url %>">Install Strata</a> in the team or channel where you want activities to appear.
-          If your organization's app policies prevent installation, ask your Teams administrator to approve or upload the app.
-        </li>
-        <li>In that channel, send <b>@Strata help</b> to confirm that the bot responds.</li>
-        <li>
-          Send <b>@Strata connect</b> and select <b>Connect!</b>.
-          Sign in to Strava and authorize Strata; sign-in and authorization take place outside Teams.
-        </li>
-        <li>Save a new activity in Strava after connecting, then look for its activity card in the connected channel.</li>
-      </ol>
-      <p>
-        To stop sharing, send <b>@Strata disconnect</b> to unlink your Strava account.
-        Disconnecting does not remove activity cards already posted in Teams; use Teams' message controls to delete earlier posts where your permissions allow it.
-      </p>
-    </section>
-    <p>&nbsp;</p>
-    <p>
-      <img src="img/help.png" alt="Strata Microsoft Teams commands example">
-    </p>
-    <p>&nbsp;</p>
-    <p>
-      Use <b>@Strata connect</b> to connect your Strava account and <b>@Strata disconnect</b> to disconnect. Follow the prompts. Notifications will be sent to the channel where you connected.
-    </p>
-    <p>
-      Try <b>@Strata leaderboard</b> to see a distance leaderboard, or <b>@Strata stats</b> to see aggregate stats in the current channel for the past 30 days.
-      Try <b>@Strata leaderboard distance</b>, <b>@Strata leaderboard time</b> or <b>@Strata leaderboard count</b>.
-      Leaderboard supports longer ranges which may require adjusting <b>retention</b>.
-      Try <b>@Strata leaderboard last week</b>, or <b>@Strata leaderboard elapsed time last month</b>.
-      Leaderboard also understands <b>since 2024</b> or <b>between January and March</b>.
-    </p>
-    <p>
-      Stop syncing activities with <b>@Strata set sync false</b> and resume with <b>@Strata set sync true</b> (default).
-      Publish private (only you) activities with <b>@Strata set private true</b> or hide them with <b>@Strata set private false</b> (default).
-      Publish followers only activities with <b>@Strata set followers true</b> (default) or hide them with <b>@Strata set followers false</b>.
-    </p>
-    <p>
-      Strata retains activities for 30 days. Team owners can change this with <b>@Strata set retention 60 days</b> or <b>@Strata set retention 3 months</b> to change this.
-      Change the team timezone with <b>@Strata set timezone Pacific Time (US &amp; Canada)</b> or <b>@Strata set timezone auto</b> so date-based features and daily limits use the right day boundary.
-      Limit activity floods with <b>@Strata set userlimit 5</b> to cap how many activities a user can post per day, or <b>@Strata set channellimit 10</b> to cap the number of activities posted in a channel per day.
-      Use <b>@Strata set userlimit none</b> or <b>@Strata set channellimit none</b> to remove those limits.
-      Change <b>units</b> with <b>@Strata set units imperial</b> (miles, feet, yards, and degrees Fahrenheit, default), <b>@Strata set units metric</b> (kilometers, meters, and degrees Celsius), or <b>@Strata set units both</b> to display both values.
-      Change displayed fields with <b>@Strata set fields</b>, eg. <b>@Strata set fields default</b>, <b>@Strata set fields all</b> or <b>@Strata set fields none</b>.
-      Available fields are <%= ActivityFields.values.and { |v| '<b>' + v + '</b>' } %>.
-      Turn maps off with <b>@Strata set maps off</b>, display thumbnails with <b>@Strata set maps thumb</b> and full maps with <b>@Strata set maps full</b> (default).
-      Disconnect users with <b>@Strata disconnect @mention</b>.
-    </p>
-    <section id="support">
-      <h2>Contact support</h2>
-      <p>
-        For setup help or to report a problem, email <a href="mailto:dblock@vestris.com">dblock@vestris.com</a>.
-        Include the command, channel or chat type, approximate time and time zone, and any error message.
-        Do not send passwords or access tokens.
-      </p>
-    </section>
+  <body id="page-top" class="site-page help-page">
+    <%= partial 'public/partials/_navigation.html.erb' %>
+    <main id="main" class="page-container help-content">
+      <header class="help-header">
+        <h1>Strata: Help</h1>
+        <p>Connect Strava, share activities, and manage your Teams channel.</p>
+      </header>
+      <section id="get-started" class="help-section">
+        <h2>Get started</h2>
+        <p>You'll need a Teams channel and a Strava account. Don't have one? <a href="https://www.strava.com/register">Sign up for Strava</a>.</p>
+        <ol class="getting-started-steps">
+          <li><a href="<%= TeamsStrava::Service.install_url %>">Install Strata</a> in your team or channel. Ask your Teams administrator to approve or upload the app if needed.</li>
+          <li>Send <code>@Strata help</code> in the channel to check that the bot responds.</li>
+          <li>Send <code>@Strata connect</code>, select <b>Connect!</b>, and sign in to Strava to authorize access outside Teams.</li>
+          <li>Save a new Strava activity after connecting. Its activity card will appear in the connected channel.</li>
+        </ol>
+        <p class="help-note">To stop sharing, send <code>@Strata disconnect</code>. Disconnecting does not remove activity cards already posted in Teams; delete earlier posts using Teams' message controls where your permissions allow it.</p>
+      </section>
+      <section id="commands" class="help-section">
+        <h2>Commands and settings</h2>
+        <p>Send commands in the Teams channel where Strata is installed. Choose a topic for examples.</p>
+        <details class="help-topic">
+          <summary>Leaderboards and statistics</summary>
+          <dl>
+            <dt><code>@Strata leaderboard</code></dt>
+            <dd>Show the channel's distance leaderboard. Choose a metric with <code>@Strata leaderboard distance</code>, <code>@Strata leaderboard time</code>, or <code>@Strata leaderboard count</code>.</dd>
+            <dt><code>@Strata stats</code></dt>
+            <dd>Show aggregate activity statistics for the past 30 days.</dd>
+            <dt><code>@Strata leaderboard last week</code></dt>
+            <dd>Choose a time range, such as <code>elapsed time last month</code>, <code>since 2024</code>, or <code>between January and March</code>. Longer ranges may require increasing retention below.</dd>
+          </dl>
+        </details>
+        <details class="help-topic">
+          <summary>Sharing and privacy</summary>
+          <dl>
+            <dt><code>@Strata set sync false</code></dt>
+            <dd>Pause activity sharing. Resume with <code>@Strata set sync true</code> (the default).</dd>
+            <dt><code>@Strata set private true</code></dt>
+            <dd>Include private activities. They are hidden by default; restore that setting with <code>@Strata set private false</code>.</dd>
+            <dt><code>@Strata set followers false</code></dt>
+            <dd>Hide followers-only activities. They are included by default; restore with <code>@Strata set followers true</code>.</dd>
+            <dt><code>@Strata disconnect</code></dt>
+            <dd>Unlink your Strava account. To disconnect another member, use <code>@Strata disconnect @mention</code>.</dd>
+          </dl>
+        </details>
+        <details class="help-topic">
+          <summary>Units, maps, and fields</summary>
+          <dl>
+            <dt><code>@Strata set units metric</code></dt>
+            <dd>Use kilometers, meters, and Celsius. Choose <code>imperial</code> for miles, feet, yards, and Fahrenheit (the default), or <code>both</code> to display both sets.</dd>
+            <dt><code>@Strata set maps thumb</code></dt>
+            <dd>Use map thumbnails. Choose <code>off</code> to hide maps or <code>full</code> for full maps (the default).</dd>
+            <dt><code>@Strata set fields</code></dt>
+            <dd>Choose displayed fields with <code>default</code>, <code>all</code>, or <code>none</code>. Available fields: <%= ActivityFields.values.and { |v| '<code>' + v + '</code>' } %>.</dd>
+          </dl>
+        </details>
+        <details class="help-topic">
+          <summary>Retention, timezone, and posting limits</summary>
+          <dl>
+            <dt><code>@Strata set retention 60 days</code></dt>
+            <dd>Team owners can change the default 30-day retention. Durations such as <code>3 months</code> also work.</dd>
+            <dt><code>@Strata set timezone Pacific Time (US &amp; Canada)</code></dt>
+            <dd>Choose the timezone for date ranges and daily limits, or use <code>auto</code>.</dd>
+            <dt><code>@Strata set userlimit 5</code></dt>
+            <dd>Limit each user's daily activity posts. Use <code>@Strata set userlimit none</code> to remove the limit.</dd>
+            <dt><code>@Strata set channellimit 10</code></dt>
+            <dd>Limit daily posts across the channel. Use <code>@Strata set channellimit none</code> to remove the limit.</dd>
+          </dl>
+        </details>
+      </section>
+      <section id="support" class="help-section">
+        <h2>Contact support</h2>
+        <p>Email <a href="mailto:dblock@vestris.com">dblock@vestris.com</a> with the command, channel type, approximate time and time zone, and any error message. Don't send passwords or access tokens.</p>
+      </section>
+      <p class="affiliation-note">Powered by Strava; not officially affiliated with <a href="https://www.nyrr.org/">NYRR</a> or <a href="https://www.strava.com">Strava</a>.</p>
+    </main>
     <%= partial 'public/partials/_footer.html.erb' %>
   </body>
 </html>

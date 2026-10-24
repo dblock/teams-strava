@@ -37,5 +37,12 @@ describe TeamsStrava::TeamsAppPackage do
       expect(described_class).to receive(:build_zip).once.and_call_original
       2.times { described_class.zip }
     end
+
+    it 'does not serve a package cached before the manifest update' do
+      Api::Middleware.cache.write('teams-app-package.zip', 'outdated package')
+      expect(described_class).to receive(:build_zip).once.and_return('updated package')
+
+      expect(described_class.zip).to eq 'updated package'
+    end
   end
 end

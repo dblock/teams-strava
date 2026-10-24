@@ -1,3 +1,5 @@
+require 'digest'
+
 module TeamsStrava
   # Builds the Teams app package (manifest.json + icons) as a zip, ready to
   # be sideloaded via Teams Admin Center. The package is small and cheap to
@@ -6,7 +8,7 @@ module TeamsStrava
   class TeamsAppPackage
     MANIFEST_DIR = File.expand_path('../manifest', __dir__).freeze
     FILES = %w[manifest.json color.png outline.png].freeze
-    CACHE_KEY = 'teams-app-package.zip'.freeze
+    CACHE_KEY = "teams-app-package-#{Digest::SHA256.file(File.join(MANIFEST_DIR, 'manifest.json')).hexdigest}.zip".freeze
 
     def self.zip
       Api::Middleware.cache.read(CACHE_KEY) || begin

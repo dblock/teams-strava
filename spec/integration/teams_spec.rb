@@ -14,7 +14,7 @@ describe 'Teams', :js, type: :feature do
       expect {
         visit '/?code=code&guild_id=guild_id&permissions=2147502080'
 
-        expect(title).to eq('Strata: Strava integration with Microsoft Teams')
+        expect(title).to eq('Strata')
         expect(page).to have_no_text('Team successfully registered!')
         expect(all("a[href='https://teams.example/install']").size).to eq(2)
       }.not_to change(Team, :count)

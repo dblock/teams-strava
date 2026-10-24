@@ -15,7 +15,11 @@ describe 'Homepage', :js, type: :feature do
     end
 
     it 'displays index.html page' do
-      expect(title).to eq('Strata: Strava integration with Microsoft Teams')
+      expect(title).to eq('Strata')
+      expect(page).to have_css('h1', exact_text: 'Strata')
+      expect(page).to have_no_css('h1 + p', exact_text: 'Powered by Strava')
+      expect(page).to have_css('meta[property="og:title"][content="Strata"]', visible: :hidden)
+      expect(page).to have_css('meta[name="twitter:title"][content="Strata"]', visible: :hidden)
     end
 
     it 'includes links to install the Teams app' do

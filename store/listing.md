@@ -57,6 +57,23 @@ Daniel Doubrovkine, Vestris LLC - dblock@vestris.com
 - Privacy: https://strata.playplay.io/privacy
 - Terms of use: https://strata.playplay.io/terms
 
+## Screenshots
+
+Upload the captioned PNG files in `store/screenshots/` in the order below. Each image is 1366x768 pixels and under 1,024 KB, with dark feature headlines and supporting captions on an original layered blue ribbon background above the existing Teams interface. The palette uses the shoe logo's primary blue, `#314F80`, with lighter tints and overlapping ribbons to reduce empty white space. These are desktop screenshots; mobile screenshots remain a separate recommendation.
+
+| File | Headline | Caption |
+| --- | --- | --- |
+| `1-marathon.png` | Celebrate every finish | Share activity stats and route maps in your team channel. |
+| `2-connect-strava.png` | Connect Strata | Authorize your Strava account in Teams to start sharing activities. |
+| `3-activity-post.png` | Keep your team up to speed | See distance, pace, maps, and weather without leaving Teams. |
+| `4-settings.png` | Make Strata work for your team | Choose activity types, units, maps, and posting limits. |
+
+### Creating another screenshot
+
+Reuse [screenshot-background.png](screenshot-background.png), the original 1366x768 abstract canvas without captions or app UI. The editable vector source is [screenshot-background.svg](screenshot-background.svg); export it at its intrinsic 1366x768 size when changing the artwork. These are source assets, not additional screenshots to upload to the Store.
+
+Center the headline at x=683, top=16 using Arial Bold at 34px in `#171717`, and the supporting caption at x=683, top=60 using Arial at 20px in `#292929`. Add a 48x4px `#314F80` divider centered horizontally at top=88. Remove unused margins from the Teams capture, preserve its aspect ratio, and fit the complete window within 1318x648px, horizontally centered at top=104. Do not cover app UI with captions. Export at 1366x768 and keep the PNG under 1,024 KB.
+
 ## Testing instructions for reviewers
 
 Reviewers will need a Strava account to test the `connect` flow. Strava

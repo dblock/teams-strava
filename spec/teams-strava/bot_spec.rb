@@ -17,6 +17,76 @@ describe TeamsStrava::Bot do
     )
   end
 
+  describe '#to_rack' do
+    let(:service_url) { 'https://smba.trafficmanager.net/amer/' }
+    let(:keys) { Array.new(2) { OpenSSL::PKey::RSA.generate(2048) } }
+    let(:jwks) { { keys: [public_jwk(keys.first, 'original')] } }
+    let(:activity) do
+      {
+        type: 'message',
+        text: 'help',
+        from: { id: 'user-id', name: 'Test User' },
+        recipient: { id: 'bot-id', name: 'Strata' },
+        conversation: { id: 'conversation-id', conversationType: 'personal' },
+        serviceUrl: service_url
+      }
+    end
+
+    before do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('RACK_ENV').and_return('production')
+      stub_request(:get, 'https://login.botframework.com/v1/.well-known/openidconfiguration')
+        .to_return(body: { jwks_uri: 'https://login.botframework.com/v1/.well-known/keys' }.to_json)
+      stub_request(:get, 'https://login.botframework.com/v1/.well-known/keys')
+        .to_return { { body: jwks.to_json, headers: { 'Content-Type' => 'application/json' } } }
+    end
+
+    def public_jwk(key, kid)
+      {
+        kid:,
+        kty: 'RSA',
+        n: Base64.urlsafe_encode64(key.n.to_s(2), padding: false),
+        e: Base64.urlsafe_encode64(key.e.to_s(2), padding: false)
+      }
+    end
+
+    def authenticated_request(key, kid)
+      header = Base64.urlsafe_encode64({ alg: 'RS256', kid: }.to_json, padding: false)
+      payload = Base64.urlsafe_encode64({
+        iss: 'https://api.botframework.com',
+        aud: ENV.fetch('CLIENT_ID'),
+        nbf: Time.now.to_i - 60,
+        exp: Time.now.to_i + 3600,
+        serviceurl: service_url
+      }.to_json, padding: false)
+      input = "#{header}.#{payload}"
+      signature = Base64.urlsafe_encode64(key.sign(OpenSSL::Digest.new('SHA256'), input), padding: false)
+      subject.to_rack.call(
+        'REQUEST_METHOD' => 'POST',
+        'PATH_INFO' => '/api/messages',
+        'rack.input' => StringIO.new(activity.to_json),
+        'HTTP_AUTHORIZATION' => "Bearer #{input}.#{signature}"
+      )
+    end
+
+    it 'continues dispatching authenticated commands immediately after Microsoft rotates signing keys' do
+      expect(TeamsStrava::Commands).to receive(:invoke!).twice do |request|
+        expect(request.name).to eq 'help'
+        nil
+      end
+
+      expect(authenticated_request(keys.first, 'original').first).to eq 200
+      jwks[:keys] << public_jwk(keys.last, 'rotated')
+      expect(authenticated_request(keys.last, 'rotated').first).to eq 200
+      expect(WebMock).to have_requested(:get, 'https://login.botframework.com/v1/.well-known/keys').twice
+    end
+
+    it 'rejects an unknown signing key without dispatching a command' do
+      expect(TeamsStrava::Commands).not_to receive(:invoke!)
+      expect(authenticated_request(keys.last, 'unknown').first).to eq 401
+    end
+  end
+
   describe '#handle_conversation_update!' do
     context 'when installed at team scope' do
       let(:activity) { activity_for(conversation_type: 'channel', team: 'team-id', members_added: [{ id: 'bot-id' }]) }

@@ -16,7 +16,7 @@ Use this only as separate attribution, never as part of the app name. The websit
 
 ## Validation update
 
-The updated package is `store/pkg/strata-teams-app.zip` (manifest version 1.0.3). Send it and the updated `store/Strata-testing-instructions.pdf` through the existing Ticket #5811188 email thread. Do not resubmit in Partner Center until Microsoft gives final approval by email. Portal app-name fields must be updated separately; repository changes do not update them.
+The updated package is `store/pkg/strata-teams-app.zip` (manifest version 1.0.4). Send it and the updated `store/Strata-testing-instructions.pdf` through the existing Ticket #5811188 email thread. Do not resubmit in Partner Center until Microsoft gives final approval by email. Portal app-name fields must be updated separately; repository changes do not update them.
 
 ## Short description (max 100 characters)
 
@@ -24,31 +24,23 @@ Strata connects Strava with Microsoft Teams.
 
 ## Full description (max 4000 characters)
 
-Strata posts your team's Strava activities to a Microsoft Teams channel,
-tracks leaderboards and stats, and lets everyone connect their own Strava
-account.
+Bring your running or cycling club together in Microsoft Teams. Strata helps workplace fitness groups celebrate progress and compare activity totals without manually sharing every workout.
 
-Every new activity is automatically reposted into the channel with:
+- Share new Strava activities in your connected channel, with time, distance, pace, maps, and weather when available.
+- Keep friendly competition in Teams with channel leaderboards and activity statistics.
+- Choose activity types, units, maps, and posting limits to fit your group.
 
-- Moving and elapsed time, distance, pace, speed and elevation
-- A map of the route
-- Weather at the time of the activity
+**Setup and requirements**
 
-Perfect for a running or cycling club inside your Teams organization.
+Install Strata in a Teams channel and send @Strata connect. You need an active Strava account and your organization's permission to install the app. Strava sign-in and authorization take place outside Teams.
 
-Commands:
+**Limitations**
 
-- `connect` - connect your Strava account
-- `disconnect` - disconnect your Strava account
-- `set` - change settings, e.g. "set units metric"
-- `leaderboard` - display a team leaderboard, e.g. "leaderboard distance this month"
-- `stats` - display team stats for the past 30 days
-- `subscription` - show subscription info and a link to update the payment method
-- `help` - get a helpful message listing all commands
+Activity sharing and leaderboards require a Teams channel; these workflows are not available in personal or group chats. New activities sync after you connect. Maps require route data, and weather appears only when available. Private activities are excluded by default. Statistics reflect retained activities (30 days by default). Send @Strata disconnect to stop future sharing; existing Teams posts remain.
 
-An active Strava account is required. [Sign up for Strava](https://www.strava.com/register) | [Get started](https://strata.playplay.io/help.html#get-started) | [Contact support](https://strata.playplay.io/help.html#support) | [Help](https://strata.playplay.io/help.html)
+Strata is currently available at no charge during the beta. Powered by Strava; not officially affiliated with Strava.
 
-Strata is not officially affiliated with Strava.
+[Sign up for Strava](https://www.strava.com/register) | [Get started](https://strata.playplay.io/help.html#get-started) | [Contact support](https://strata.playplay.io/help.html#support) | [Help](https://strata.playplay.io/help.html)
 
 ## Support / contact
 

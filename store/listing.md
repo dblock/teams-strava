@@ -1,7 +1,22 @@
 # Teams Store Listing Copy
 
-Draft copy for the Partner Center app submission form. Not used by the app
-itself; kept here for reference alongside the screenshots and publisher logo.
+Draft copy for the Partner Center app submission form. Not used by the app itself; kept here for reference alongside the screenshots and publisher logo.
+
+## App name
+
+Strata
+
+Use **Strata** for the app name in both Partner Center and the Teams Developer Portal so it matches the manifest's short and full names. Keep Microsoft Teams and Strava references in descriptive copy, not the app name.
+
+## Tagline
+
+Powered by Strava
+
+Use this only as separate attribution, never as part of the app name. The website retains its existing footer logo without a tagline beneath the heading. See the [Microsoft app-name requirements](https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/appsource/prepare/teams-store-validation-guidelines#app-name) and [Strava API Brand Guidelines](https://developers.strava.com/guidelines/).
+
+## Validation update
+
+The updated package is `store/pkg/strata-teams-app.zip` (manifest version 1.0.2). Send it and the updated `store/Strata-testing-instructions.pdf` through the existing Ticket #5811188 email thread. Do not resubmit in Partner Center until Microsoft gives final approval by email. Portal app-name fields must be updated separately; repository changes do not update them.
 
 ## Short description (max 100 characters)
 

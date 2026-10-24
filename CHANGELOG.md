@@ -1,5 +1,6 @@
 ### Changelog
 
+* 2026/10/24: Use Strata as the app name across the website and manifest; update the Store package and certification instructions for manifest version 1.0.2 - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2026/10/24: Fix Teams commands being rejected after Microsoft signing-key rotation using `ruby-jwt` verification and JavaScript-style signing-key caching from [teams_rb#12](https://github.com/bavmind/teams_rb/pull/12) - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2026/10/23: Upgrade Ruby to 4.0.9 and refresh dependencies, leaving Stripe dependencies unchanged - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2026/09/23: Configure the Azure Bot profile with the human-readable name and icon for Strata so Teams does not display the internal `strata-prod` resource name or a generic avatar - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).

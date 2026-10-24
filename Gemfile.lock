@@ -1,3 +1,14 @@
+GIT
+  remote: https://github.com/dblock/teams_rb.git
+  revision: 177aae8a2e537fefb23521938a59eb20fb8f7fc0
+  branch: fix/jwks-javascript-parity
+  specs:
+    teams_rb (2.0.2)
+      base64 (~> 0.3)
+      faraday (~> 2.14)
+      jwt (~> 3.3)
+      rack (~> 3.2)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -135,6 +146,8 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     json (3.1.0)
+    jwt (3.3.0)
+      base64
     kaminari-core (1.3.0)
     kaminari-grape (1.0.1)
       grape
@@ -296,10 +309,6 @@ GEM
       drb (>= 2.0.4, < 3)
       multi_json (~> 1.0)
       stripe (> 5, < 14)
-    teams_rb (2.0.2)
-      base64 (~> 0.3)
-      faraday (~> 2.14)
-      rack (~> 3.2)
     thor (1.5.0)
     timecop (0.9.11)
     timeout (0.6.1)
@@ -373,7 +382,7 @@ DEPENDENCIES
   strava-ruby-client
   stripe (~> 13.5)
   stripe-ruby-mock (~> 5.0)
-  teams_rb
+  teams_rb!
   timecop
   vcr
   wannabe_bool

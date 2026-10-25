@@ -35,7 +35,11 @@ module Api
         use Rack::ConditionalGet
         use Rack::ETag
         use Rack::Robotz, 'User-Agent' => '*', 'Disallow' => '/api', 'Sitemap' => "#{TeamsStrava::Service.url}/sitemap.xml"
-        use Rack::ServerPages
+        use Rack::ServerPages do |pages|
+          pages.cache_control = 'private, no-cache'
+          # Template mtimes do not track partials or nested artwork.
+          pages.after { response.headers.delete('last-modified') }
+        end
 
         map '/strata-teams-app.zip' do
           run lambda { |_env|

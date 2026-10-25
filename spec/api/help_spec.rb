@@ -14,7 +14,7 @@ describe Api do
         expect(document.at_css('body.site-page > nav[aria-label="Main navigation"]')).not_to be_nil
         expect(document.at_css('main#main')).not_to be_nil
         expect(document.at_css('body > footer.site-footer')).not_to be_nil
-        expect(document.at_css('link[rel="icon"]')['href']).to eq '/favicon.ico?v=blue'
+        expect(document.at_css('link[rel="icon"]')['href']).to eq "/favicon.ico?v=#{Digest::SHA256.file('public/favicon.ico').hexdigest}"
       end
     end
 
@@ -42,7 +42,7 @@ describe Api do
 
       document = Nokogiri::HTML(last_response.body)
       expect(document.css('#commands details summary').map(&:text)).to include('Sharing and privacy', 'Units, maps, and fields')
-      expect(document.css('img[src$="help.png"]')).to be_empty
+      expect(document.css('img[src^="/img/help.png"]')).to be_empty
     end
 
     it 'serves the local destinations linked from the manifest description' do

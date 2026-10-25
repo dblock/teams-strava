@@ -14,6 +14,22 @@ describe 'Homepage', :js, type: :feature do
       visit '/'
     end
 
+    it 'reloads generated CSS and loads its versioned artwork' do
+      page.refresh
+      image_path = "/img/screenshot-background.svg?v=#{Digest::SHA256.file('public/img/screenshot-background.svg').hexdigest}"
+      expect(page.evaluate_script("getComputedStyle(document.body, '::before').backgroundImage")).to include(image_path)
+      expect(page.evaluate_async_script(<<~JS, image_path)).to be true
+        const done = arguments[arguments.length - 1];
+        const image = new Image();
+        image.onload = () => done(image.naturalWidth > 0);
+        image.onerror = () => done(false);
+        image.src = arguments[0];
+      JS
+      expect(page).to have_css('.hero-preview img[src^="/img/strata-teams.png?v="]') do |image|
+        image.evaluate_script('this.complete && this.naturalWidth === 1366 && this.naturalHeight === 768')
+      end
+    end
+
     it 'displays index.html page' do
       expect(title).to eq('Strata')
       expect(page).to have_css('h1', exact_text: 'Strata')

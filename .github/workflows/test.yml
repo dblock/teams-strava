@@ -4,7 +4,8 @@ on: [push, pull_request]
 
 jobs:
   RSpec:
-    runs-on: ubuntu-latest
+    # MongoDB 8.0 rejects Linux 6.19+ kernels: SERVER-121912.
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v7
       - uses: browser-actions/setup-firefox@latest
@@ -14,8 +15,12 @@ jobs:
         with:
           geckodriver-version: "0.36.0"
       - uses: supercharge/mongodb-github-action@1.12.1
+        id: mongodb
         with:
           mongodb-version: "8.0"
+      - name: Diagnose MongoDB startup failure
+        if: failure() && steps.mongodb.outcome == 'failure'
+        run: docker logs mongodb
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ".ruby-version"

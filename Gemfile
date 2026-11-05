@@ -29,7 +29,7 @@ gem 'ruby-enum'
 gem 'rubyzip', require: 'zip'
 gem 'strava-ruby-client'
 gem 'stripe', '~> 13.5'
-gem 'teams_rb', github: 'dblock/teams_rb', branch: 'fix/jwks-javascript-parity', require: 'teams'
+gem 'teams_rb', '~> 2.0', '>= 2.0.3', require: 'teams'
 gem 'wannabe_bool'
 
 group :development, :test do

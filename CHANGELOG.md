@@ -1,5 +1,6 @@
 ### Changelog
 
+* 2026/11/05: Upgrade to the released teams_rb 2.0.3 gem, replacing the temporary signing-key cache fix branch with the upstream release - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2026/10/27: Preserve the original Strava error when an API failure has no HTTP response instead of masking it with a nil-response exception during activity delivery ([#13](https://github.com/dblock/teams-strava/pull/13)) - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2026/10/25: Upgrade rack-server-pages to 0.3; version website assets and nested ribbon artwork with revalidating template caching while preserving Teams installation and packages, OAuth, payments, and API behavior - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2026/10/24: Redesign all website pages with shared Sup2-inspired navigation and a fixed blue ribbon background; add an original transparent Teams activity screenshot, crisp install buttons, a matching blue favicon, and expandable command help, removing the outdated help screenshot - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).

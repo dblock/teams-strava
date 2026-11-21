@@ -1,5 +1,6 @@
 ### Changelog
 
+* 2026/11/20: Update rack to 3.2.9 and httparty to 0.25.0 ([#20](https://github.com/dblock/teams-strava/pull/20)) - [@dblock](https://github.com/dblock).
 * 2026/11/20: Upgrade Ruby to 4.0.10 and update dependencies to their latest minor versions ([#19](https://github.com/dblock/teams-strava/pull/19)) - [@dblock](https://github.com/dblock).
 * 2026/11/05: Upgrade to the released teams_rb 2.0.3 gem, replacing the temporary signing-key cache fix branch with the upstream release - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2026/10/27: Preserve the original Strava error when an API failure has no HTTP response instead of masking it with a nil-response exception during activity delivery ([#13](https://github.com/dblock/teams-strava/pull/13)) - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).

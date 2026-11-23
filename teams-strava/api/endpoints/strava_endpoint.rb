@@ -89,6 +89,18 @@ module Api
               else
                 Api::Middleware.logger.info "Ignoring aspect type '#{params['aspect_type']}', object_type=#{params['object_type']}, object_id=#{params['object_id']}, #{params['updates']}."
               end
+            when 'athlete'
+              # Strava sends authorized=false when an athlete revokes access to Strata on strava.com.
+              if params['aspect_type'] == 'update' && params['updates']['authorized'].to_s == 'false'
+                User.where('athlete.athlete_id' => params['owner_id']).each do |user|
+                  Api::Middleware.logger.info "Deauthorizing team #{user.team}, user #{user}, #{user.athlete}, athlete=#{params['owner_id']}."
+                  user.deauthorize!
+                rescue StandardError => e
+                  Api::Middleware.logger.warn "Error deauthorizing team #{user.team}, user #{user}, athlete=#{params['owner_id']}: #{e}."
+                end
+              else
+                Api::Middleware.logger.info "Ignoring athlete aspect type '#{params['aspect_type']}', owner_id=#{params['owner_id']}, #{params['updates']}."
+              end
             else
               Api::Middleware.logger.warn "Ignoring object type '#{params['object_type']}', aspect_type=#{params['aspect_type']}, object_id=#{params['object_id']}, #{params['updates']}."
             end

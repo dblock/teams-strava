@@ -134,6 +134,15 @@ class User
     disconnect_from_strava
   end
 
+  # The athlete revoked access on Strava, so the tokens no longer work; delete
+  # the Strava data stored for them, as the Strava API agreement requires.
+  def deauthorize!
+    activities.destroy_all
+    self.athlete = nil
+    reset_access_tokens!(connected_to_strava_at: nil, activities_at: nil)
+    logger.info "Deauthorized team=#{team}, user=#{self}"
+  end
+
   def connect_to_strava(message = 'Please connect your Strava account.')
     card = ::Teams::Cards::AdaptiveCard.new(
       ::Teams::Cards::TextBlock.new(message, wrap: true),

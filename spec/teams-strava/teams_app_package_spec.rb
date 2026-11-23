@@ -1,7 +1,13 @@
 require 'spec_helper'
 
 describe TeamsStrava::TeamsAppPackage do
+  # The examples below stub build_zip, so never leave their values in the
+  # shared file cache for other specs that serve the real package.
   before do
+    Api::Middleware.cache.clear
+  end
+
+  after do
     Api::Middleware.cache.clear
   end
 

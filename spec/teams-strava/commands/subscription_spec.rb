@@ -10,8 +10,9 @@ describe TeamsStrava::Commands::Subscription do
         team.update_attributes!(subscribed: false, subscribed_at: nil)
       end
 
-      it 'displays subscribe message' do
-        expect(response).to eq team.trial_message
+      it 'displays a message without pricing' do
+        expect(response).to eq 'No subscription is required.'
+        expect(response).not_to match(/trial|free|\$|subscribe\?/i)
       end
     end
 

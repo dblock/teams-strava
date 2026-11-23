@@ -37,18 +37,12 @@ module TeamsStrava
         **General**
 
         - `help` - get this helpful message
-        - `subscription` - show subscription info, update credit-card
-        - `unsubscribe` - turn off subscription auto-renew
-        - `resubscribe` - turn on subscription auto-renew
         - `info` - bot info, contact, feature requests
       EOS
 
       command 'help' do |request|
         logger.info "HELP: #{request}"
-        [
-          HELP,
-          request.team.reload.subscribed? ? nil : request.team.trial_message
-        ].compact.join("\n")
+        HELP
       end
     end
   end

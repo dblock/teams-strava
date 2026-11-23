@@ -284,16 +284,13 @@ class Team
     inform_team_owner!(message)
   end
 
-  def subscription_info(team_owner = true)
+  # Shown in Teams, so it never includes amounts, invoices, cards, or payment
+  # links (Teams Store policy 1140.4.8); billing is managed on the website.
+  def subscription_info
     subscription_info = []
     if stripe_subcriptions&.any?
       subscription_info << stripe_customer_text
       subscription_info.concat(stripe_customer_subscriptions_info)
-      if team_owner
-        subscription_info.concat(stripe_customer_invoices_info)
-        subscription_info.concat(stripe_customer_sources_info)
-        subscription_info << update_cc_text
-      end
     elsif subscribed && subscribed_at
       subscription_info << subscriber_text
     else
@@ -306,7 +303,7 @@ class Team
     return unless subscription_expired?
     return if subscription_expired_at
 
-    inform_everyone!(subscribe_text)
+    inform_everyone!(paused_text)
     update_attributes!(subscription_expired_at: Time.now.utc)
   end
 
@@ -315,10 +312,6 @@ class Team
 
     time_limit = Time.now - 2.weeks
     created_at < time_limit
-  end
-
-  def update_cc_text
-    "Update your credit card info at #{TeamsStrava::Service.url}/update_cc?team_id=#{id}."
   end
 
   def subscribed_text
@@ -338,25 +331,6 @@ class Team
     raise 'Team is subscribed.' if subscribed?
 
     [0, (trial_ends_at.to_date - Time.now.utc.to_date).to_i].max
-  end
-
-  def trial_message
-    [
-      if remaining_trial_days.zero?
-        'Your trial subscription has expired.'
-      else
-        "Your trial subscription expires in #{remaining_trial_days} day#{'s' unless remaining_trial_days == 1}."
-      end,
-      subscribe_text
-    ].join(' ')
-  end
-
-  def inform_trial!
-    return if subscribed? || subscription_expired?
-    return if trial_informed_at && (Time.now.utc < trial_informed_at + 7.days)
-
-    inform_everyone!(trial_message)
-    update_attributes!(trial_informed_at: Time.now.utc)
   end
 
   def stripe_customer
@@ -382,35 +356,23 @@ class Team
     'No subscription is required.'
   end
 
-  def subscribe_text
-    "Subscribe your team for $24.99 a year at #{TeamsStrava::Service.url}/subscribe?team_id=#{id} to continue receiving Strava activities in Teams. Proceeds go to NYRR."
+  # Teams messages may not ask anyone to pay or link to a payment page, even
+  # after a subscription expires (Teams Store policy 1140.4.8).
+  def paused_text
+    'Strava activity sharing is paused for this team.'
   end
 
   def stripe_customer_subscriptions_info
     Stripe::Subscription.list(customer: stripe_customer.id).map do |subscription|
-      amount = ActiveSupport::NumberHelper.number_to_currency(subscription.plan.amount.to_f / 100)
       current_period_end = Time.at(subscription.current_period_end).strftime('%B %d, %Y')
       plan_name = subscription.plan.nickname
       if subscription.status == 'active'
         [
-          "Subscribed to #{plan_name} (#{amount}), will#{' not' if subscription.cancel_at_period_end} auto-renew on #{current_period_end}."
+          "Subscribed to #{plan_name}, will#{' not' if subscription.cancel_at_period_end} auto-renew on #{current_period_end}."
         ].compact.join("\n")
       else
-        "#{subscription.status.titleize} subscription created #{Time.at(subscription.created).strftime('%B %d, %Y')} to #{plan_name} (#{amount})."
+        "#{subscription.status.titleize} subscription created #{Time.at(subscription.created).strftime('%B %d, %Y')} to #{plan_name}."
       end
-    end
-  end
-
-  def stripe_customer_invoices_info
-    Stripe::Invoice.list(customer: stripe_customer.id).map do |invoice|
-      amount = ActiveSupport::NumberHelper.number_to_currency(invoice.amount_due.to_f / 100)
-      "Invoice for #{amount} on #{Time.at(invoice.created).strftime('%B %d, %Y')}, #{invoice.paid ? 'paid' : 'unpaid'}."
-    end
-  end
-
-  def stripe_customer_sources_info
-    Stripe::Customer.list_sources(stripe_customer.id).map do |source|
-      "On file #{source.brand} #{source.object}, #{source.name} ending with #{source.last4}, expires #{source.exp_month}/#{source.exp_year}."
     end
   end
 

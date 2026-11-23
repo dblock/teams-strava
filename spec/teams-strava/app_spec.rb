@@ -29,7 +29,7 @@ describe TeamsStrava::App do
 
     it 'destroys teams inactive for two weeks' do
       expect_any_instance_of(Team).to receive(:inform_everyone!).with(
-        "Your subscription expired more than 2 weeks ago, deactivating. Reactivate at #{TeamsStrava::Service.url}. Your data will be purged in another 2 weeks."
+        'Strava activity sharing has been paused for more than 2 weeks, deactivating. Your data will be purged in another 2 weeks.'
       ).once
       subject.send(:deactivate_asleep_teams!)
       expect(active_team.reload.active).to be true
@@ -51,42 +51,22 @@ describe TeamsStrava::App do
         subject.send(:check_subscribed_teams!)
       end
 
-      it 'notifies past due subscription' do
-        subscription = customer.subscriptions.data.first
-        subscription['status'] = 'past_due'
-        allow(Stripe::Subscription).to receive(:list).and_return([subscription])
-        expect_any_instance_of(Team).to receive(:inform_everyone!).with("Your subscription to Plan ($24.99) is past due. #{team.update_cc_text}")
-        subject.send(:check_subscribed_teams!)
-        expect(team.reload.past_due_informed_at).not_to be_nil
-      end
-
-      it 'does not re-notify past due subscription within 72 hours' do
-        team.update_attributes!(past_due_informed_at: 1.hour.ago)
+      it 'does not ask anyone to pay in Teams for a past due subscription' do
         subscription = customer.subscriptions.data.first
         subscription['status'] = 'past_due'
         allow(Stripe::Subscription).to receive(:list).and_return([subscription])
         expect_any_instance_of(Team).not_to receive(:inform_everyone!)
         subject.send(:check_subscribed_teams!)
-      end
-
-      it 'notifies past due subscription again after 72 hours' do
-        team.update_attributes!(past_due_informed_at: 73.hours.ago)
-        subscription = customer.subscriptions.data.first
-        subscription['status'] = 'past_due'
-        allow(Stripe::Subscription).to receive(:list).and_return([subscription])
-        expect_any_instance_of(Team).to receive(:inform_everyone!).with("Your subscription to Plan ($24.99) is past due. #{team.update_cc_text}")
-        subject.send(:check_subscribed_teams!)
+        expect(team.reload.subscribed?).to be true
       end
 
       it 'notifies canceled subscription' do
         subscription = customer.subscriptions.data.first
         subscription['status'] = 'canceled'
-        team.update_attributes!(past_due_informed_at: 1.hour.ago)
         allow(Stripe::Subscription).to receive(:list).and_return([subscription])
-        expect_any_instance_of(Team).to receive(:inform_everyone!).with('Your subscription to Plan ($24.99) was canceled and your team has been downgraded. Thank you for being a customer!')
+        expect_any_instance_of(Team).to receive(:inform_everyone!).with('Your Plan subscription was canceled and your team has been downgraded. Thank you for being a customer!')
         subject.send(:check_subscribed_teams!)
         expect(team.reload.subscribed?).to be false
-        expect(team.reload.past_due_informed_at).to be_nil
       end
 
       it 'notifies no active subscriptions' do
@@ -113,17 +93,6 @@ describe TeamsStrava::App do
           subject.send(:check_stripe_subscribers!)
         end
       end
-    end
-  end
-
-  describe '#check_trials!' do
-    let!(:active_team) { Fabricate(:team, created_at: Time.now.utc) }
-    let!(:active_team_one_week_ago) { Fabricate(:team, created_at: 1.week.ago) }
-    let!(:active_team_twelve_days_ago) { Fabricate(:team, created_at: 12.days.ago) }
-
-    it 'notifies teams' do
-      expect_any_instance_of(Team).to receive(:inform_everyone!).with(active_team_twelve_days_ago.trial_message)
-      subject.send(:check_trials!)
     end
   end
 

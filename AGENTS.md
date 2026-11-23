@@ -26,6 +26,11 @@ Update [CHANGELOG.md](CHANGELOG.md) for any user-facing change. Add a line at th
 * YYYY/MM/DD: Description of change - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 ```
 
+## Teams Store Policy
+
+- Teams messages (bot replies, cards, and proactive posts) render on Teams mobile, so they must never include pricing, trial offers or expiry notices, upsell, payment requests, links to payment pages, or the word "free" ([policy 1140.4.8](https://learn.microsoft.com/en-us/legal/marketplace/certification-policies#114048-mobile-experience)).
+- Stripe billing lives on the website (`/subscribe`, `/update_cc`); Stripe emails customers about billing. Mention these pages only on the website, never from the bot.
+
 ## Tests
 
 - Tests live in `spec/` and use RSpec with Fabrication for factories (`spec/fabricators/`).

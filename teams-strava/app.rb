@@ -46,7 +46,6 @@ module TeamsStrava
           check_stripe_subscribers!
           # Beta: free for everyone, trial/expiration enforcement disabled.
           # deactivate_asleep_teams!
-          # check_trials!
           prune_activities!
           aggregate_stats!
         end
@@ -105,22 +104,6 @@ module TeamsStrava
       NewRelic::Agent.notice_error(e)
     rescue StandardError => e
       logger.warn "Error ensuring Strava webhook, #{e.message}."
-      NewRelic::Agent.notice_error(e)
-    end
-
-    def check_trials!
-      log_info_without_repeat "Checking trials for #{Team.active.trials.count} team(s)."
-      Team.active.trials.each do |team|
-        logger.info "Team #{team} has #{team.remaining_trial_days} trial days left."
-        next unless team.remaining_trial_days.positive? && team.remaining_trial_days <= 3
-
-        team.inform_trial!
-      rescue StandardError => e
-        logger.warn "Error checking team #{team} trial, #{e.message}."
-        NewRelic::Agent.notice_error(e, custom_params: { team: team.to_s })
-      end
-    rescue StandardError => e
-      logger.warn "Error checking trials, #{e.message}."
       NewRelic::Agent.notice_error(e)
     end
 
@@ -205,7 +188,7 @@ module TeamsStrava
 
         begin
           team.deactivate!
-          purge_message = "Your subscription expired more than 2 weeks ago, deactivating. Reactivate at #{TeamsStrava::Service.url}. Your data will be purged in another 2 weeks."
+          purge_message = 'Strava activity sharing has been paused for more than 2 weeks, deactivating. Your data will be purged in another 2 weeks.'
           team.inform_everyone!(purge_message)
         rescue StandardError => e
           logger.warn "Error informing team #{team}, #{e.message}."
@@ -227,19 +210,16 @@ module TeamsStrava
           team.update_attributes!(subscribed: false)
         else
           subscriptions.each do |subscription|
-            subscription_name = "#{subscription.plan.nickname} (#{ActiveSupport::NumberHelper.number_to_currency(subscription.plan.amount.to_f / 100)})"
-            logger.info "Checking #{team} subscription to #{subscription_name}, #{subscription.status}."
+            logger.info "Checking #{team} subscription to #{subscription.plan.nickname}, #{subscription.status}."
             case subscription.status
             when 'past_due'
-              next if team.past_due_informed_at && Time.now.utc < team.past_due_informed_at + 72.hours
-
-              logger.warn "Subscription for #{team} is #{subscription.status}, notifying."
-              team.inform_everyone!("Your subscription to #{subscription_name} is past due. #{team.update_cc_text}")
-              team.update_attributes!(past_due_informed_at: Time.now.utc)
+              # Stripe emails the customer; Teams messages may not ask anyone
+              # to pay (Teams Store policy 1140.4.8).
+              logger.warn "Subscription for #{team} is #{subscription.status}."
             when 'canceled', 'unpaid'
               logger.warn "Subscription for #{team} is #{subscription.status}, downgrading."
-              team.inform_everyone!("Your subscription to #{subscription.plan.nickname} (#{ActiveSupport::NumberHelper.number_to_currency(subscription.plan.amount.to_f / 100)}) was canceled and your team has been downgraded. Thank you for being a customer!")
-              team.update_attributes!(subscribed: false, past_due_informed_at: nil)
+              team.inform_everyone!("Your #{subscription.plan.nickname} subscription was canceled and your team has been downgraded. Thank you for being a customer!")
+              team.update_attributes!(subscribed: false)
             end
           end
         end

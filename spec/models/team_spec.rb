@@ -264,8 +264,8 @@ describe Team do
     let(:team) { Fabricate(:team, created_at: 2.weeks.ago) }
 
     before do
-      expect(team).to receive(:inform_system!).with(team.subscribe_text)
-      expect(team).to receive(:inform_team_owner!).with(team.subscribe_text)
+      expect(team).to receive(:inform_system!).with('Strava activity sharing is paused for this team.')
+      expect(team).to receive(:inform_team_owner!).with('Strava activity sharing is paused for this team.')
       team.subscription_expired!
     end
 
@@ -319,36 +319,6 @@ describe Team do
       expect(team_created_today.remaining_trial_days).to eq 13
       expect(team_created_1_week_ago.remaining_trial_days).to eq 6
       expect(team_created_3_weeks_ago.remaining_trial_days).to eq 0
-    end
-
-    describe '#inform_trial!' do
-      it 'subscribed' do
-        expect(subscribed_team).not_to receive(:inform_system!)
-        expect(subscribed_team).not_to receive(:inform_team_owner!)
-        subscribed_team.inform_trial!
-      end
-
-      it '1 week ago' do
-        expect(team_created_1_week_ago).to receive(:inform_system!).with(
-          "Your trial subscription expires in 6 days. #{team_created_1_week_ago.subscribe_text}"
-        )
-        expect(team_created_1_week_ago).to receive(:inform_team_owner!).with(
-          "Your trial subscription expires in 6 days. #{team_created_1_week_ago.subscribe_text}"
-        )
-        team_created_1_week_ago.inform_trial!
-      end
-
-      it 'expired' do
-        expect(team_created_3_weeks_ago).not_to receive(:inform_system!)
-        expect(team_created_3_weeks_ago).not_to receive(:inform_team_owner!)
-        team_created_3_weeks_ago.inform_trial!
-      end
-
-      it 'informs once' do
-        expect(team_created_1_week_ago).to receive(:inform_system!).once
-        expect(team_created_1_week_ago).to receive(:inform_team_owner!).once
-        2.times { team_created_1_week_ago.inform_trial! }
-      end
     end
   end
 

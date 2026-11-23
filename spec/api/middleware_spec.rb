@@ -6,6 +6,14 @@ describe Api::Middleware do
   let(:app) { described_class.instance }
   let(:artwork) { 'public/img/screenshot-background.svg' }
 
+  it 'serves the official Connect with Strava button used in Teams cards' do
+    get '/img/btn_strava_connect_with_orange_x2.png'
+
+    expect(last_response.status).to eq 200
+    expect(last_response.headers['Content-Type']).to eq 'image/png'
+    expect(last_response.body.bytesize).to eq File.size('public/img/btn_strava_connect_with_orange_x2.png')
+  end
+
   %w[/ /help.html /privacy.html /terms.html /connect.html /subscribe.html /update_cc.html].each do |path|
     it "serves #{path} with content-versioned assets and private revalidation" do
       get path

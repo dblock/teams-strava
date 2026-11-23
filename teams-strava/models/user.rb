@@ -144,9 +144,17 @@ class User
   end
 
   def connect_to_strava(message = 'Please connect your Strava account.')
+    # The official "Connect with Strava" button, linked to Strava OAuth as the
+    # Strava brand guidelines require (https://developers.strava.com/guidelines/).
+    button = ::Teams::Cards::Image.new(
+      url: "#{TeamsStrava::Service.url}/img/btn_strava_connect_with_orange_x2.png",
+      alt_text: 'Connect with Strava',
+      height: '48px',
+      select_action: ::Teams::Cards::OpenUrlAction.new(title: 'Connect with Strava', url: connect_to_strava_url)
+    )
     card = ::Teams::Cards::AdaptiveCard.new(
       ::Teams::Cards::TextBlock.new(message, wrap: true),
-      actions: [::Teams::Cards::OpenUrlAction.new(title: 'Connect!', url: connect_to_strava_url)]
+      button
     )
     ::Teams::Api::MessageActivity.new.add_card(card)
   end

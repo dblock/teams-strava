@@ -262,7 +262,7 @@ class Team
     elsif subscribed && subscribed_at
       subscription_info << subscriber_text
     else
-      subscription_info << trial_message
+      subscription_info << no_subscription_text
     end
     subscription_info.compact.join("\n")
   end
@@ -338,6 +338,13 @@ class Team
     return unless subscribed_at
 
     "Subscriber since #{subscribed_at.strftime('%B %d, %Y')}."
+  end
+
+  # Teams Store policy 1140.4.8 forbids pricing, trial expiry, payment links,
+  # and the word "free" in Teams (including mobile), so teams without a paid
+  # subscription see this neutral message instead.
+  def no_subscription_text
+    'No subscription is required.'
   end
 
   def subscribe_text

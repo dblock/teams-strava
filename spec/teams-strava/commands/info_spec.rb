@@ -5,7 +5,7 @@ describe TeamsStrava::Commands::Info do
     let(:args) { ['info'] }
   end
   context 'subscribed team' do
-    let!(:team) { Fabricate(:team, subscribed: true) }
+    let(:team) { Fabricate(:team, subscribed: true) }
 
     it 'info' do
       expect(response).to eq TeamsStrava::INFO
@@ -13,24 +13,19 @@ describe TeamsStrava::Commands::Info do
   end
 
   context 'non-subscribed team after trial' do
-    let!(:team) { Fabricate(:team, created_at: 2.weeks.ago) }
+    let(:team) { Fabricate(:team, created_at: 2.weeks.ago) }
 
-    it 'info' do
-      expect(response).to eq([
-        TeamsStrava::INFO,
-        team.trial_message
-      ].join("\n"))
+    it 'does not mention a trial or pricing' do
+      expect(response).to eq TeamsStrava::INFO
+      expect(response).not_to match(/trial|free|subscribe|\$/i)
     end
   end
 
   context 'non-subscribed team during trial' do
-    let!(:team) { Fabricate(:team, created_at: 1.day.ago) }
+    let(:team) { Fabricate(:team, created_at: 1.day.ago) }
 
-    it 'info' do
-      expect(response).to eq([
-        TeamsStrava::INFO,
-        team.trial_message
-      ].join("\n"))
+    it 'does not mention a trial or pricing' do
+      expect(response).to eq TeamsStrava::INFO
     end
   end
 end

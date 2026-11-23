@@ -2,7 +2,7 @@
   "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.25/MicrosoftTeams.schema.json",
   "manifestVersion": "1.25",
   "supportsChannelFeatures": "tier1",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "id": "7b9ffc5c-defc-4b8a-9b31-8f55efa247c3",
   "developer": {
     "name": "Vestris LLC",
@@ -39,10 +39,7 @@
             { "title": "disconnect", "description": "Disconnect your Strava account." },
             { "title": "set", "description": "Change settings, e.g. \"set units metric\"." },
             { "title": "leaderboard", "description": "Display a team leaderboard, e.g. \"leaderboard distance this month\"." },
-            { "title": "stats", "description": "Display team stats for the past 30 days." },
-            { "title": "subscription", "description": "Show subscription info and a link to update the payment method." },
-            { "title": "unsubscribe", "description": "Turn off subscription auto-renew." },
-            { "title": "resubscribe", "description": "Turn on subscription auto-renew." }
+            { "title": "stats", "description": "Display team stats for the past 30 days." }
           ]
         }
       ]

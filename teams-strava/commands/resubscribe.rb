@@ -7,7 +7,7 @@ module TeamsStrava
       subscribe_command 'resubscribe' do |request|
         if !request.team.stripe_customer_id
           logger.info "RESUBSCRIBE: #{request}, resubscribe failed, no subscription"
-          "You don't have a paid subscription. #{request.team.subscribe_text}"
+          "You don't have a paid subscription, all set."
         elsif request.user.team_owner?
           active_subscription = request.team.active_stripe_subscription
           if active_subscription&.cancel_at_period_end
@@ -23,7 +23,7 @@ module TeamsStrava
             "Subscription to #{active_subscription.plan.nickname} (#{amount}) will continue to auto-renew on #{current_period_end}."
           else
             logger.info "RESUBSCRIBE: #{request}, user=#{request.user}"
-            "You don't have a paid subscription. #{request.team.subscribe_text}"
+            "You don't have a paid subscription, all set."
           end
         else
           logger.info "RESUBSCRIBE: #{request}, user=#{request.user} resubscribe failed, not admin"

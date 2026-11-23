@@ -11,7 +11,7 @@ describe TeamsStrava::Commands::Resubscribe do
       end
 
       it 'displays all set message' do
-        expect(response).to eq "You don't have a paid subscription. #{team.subscribe_text}"
+        expect(response).to eq "You don't have a paid subscription, all set."
       end
     end
 
@@ -21,7 +21,7 @@ describe TeamsStrava::Commands::Resubscribe do
       end
 
       it 'displays subscription info' do
-        expect(response).to eq "You don't have a paid subscription. #{team.subscribe_text}"
+        expect(response).to eq "You don't have a paid subscription, all set."
       end
     end
 

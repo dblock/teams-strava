@@ -23,7 +23,7 @@ module TeamsStrava
             "Subscription to #{active_subscription.plan.nickname} (#{amount}) is already set to expire on #{current_period_end}, and will not auto-renew."
           else
             logger.info "UNSUBSCRIBE: #{request}, user=#{request.user}"
-            "You don't have a paid subscription. #{request.team.subscribe_text}"
+            "You don't have a paid subscription, all set."
           end
         else
           logger.info "UNSUBSCRIBE: #{request}, user=#{request.user} unsubscribe failed, not admin"

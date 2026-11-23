@@ -5,10 +5,7 @@ module TeamsStrava
 
       command 'info' do |request|
         logger.info "INFO: #{request}"
-        [
-          TeamsStrava::INFO,
-          request.team.reload.subscribed? ? nil : request.team.trial_message
-        ].compact.join("\n")
+        TeamsStrava::INFO
       end
     end
   end

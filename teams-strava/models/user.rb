@@ -101,7 +101,16 @@ class User
     )
     logger.info "Connected team=#{team}, user=#{self}, athlete_id=#{athlete.athlete_id}"
     connected!
+    announce_connected!
+  end
+
+  # The Strava connection is already saved; failing to post about it in the
+  # channel must not turn a successful sign-up into an error for the user.
+  def announce_connected!
     inform! "New Strava account connected for #{teams_mention}."
+  rescue TeamsStrava::Error => e
+    logger.warn "Error announcing Strava connection for #{self}: #{e.message}"
+    NewRelic::Agent.notice_error(e, custom_params: { user: to_s })
   end
 
   def connected!

@@ -618,4 +618,53 @@ describe Team do
       expect(team.errors[:team]).to include('Max activities per channel per day must be at least 1.')
     end
   end
+
+  describe '#welcome_message' do
+    let(:team) { Fabricate(:team) }
+    let(:card) { team.welcome_message.attachments.first['content'].to_h }
+    let(:text) { card['body'].map { |block| block['text'] }.join("\n") }
+    let(:actions) { card['actions'].to_h { |action| [action['title'], action['url']] } }
+
+    it 'is an adaptive card' do
+      expect(card['type']).to eq 'AdaptiveCard'
+    end
+
+    it 'explains the value, the setup steps, and the limitations' do
+      expect(text).to include 'Welcome to Strata!'
+      expect(text).to include 'shares new Strava activities'
+      expect(text).to include 'send **connect**'
+      expect(text).to include 'Limitations'
+      expect(text).to include 'not in personal or group chats'
+      expect(text).to include 'Requires a Strava account'
+    end
+
+    it 'links to getting started, sign up, help, and support' do
+      expect(actions).to eq(
+        'Get Started' => "#{TeamsStrava::Service.url}/help.html#get-started",
+        'Sign Up for Strava' => 'https://www.strava.com/register',
+        'Help' => "#{TeamsStrava::Service.url}/help.html",
+        'Contact Support' => "#{TeamsStrava::Service.url}/help.html#support"
+      )
+    end
+
+    it 'does not mention pricing or a trial' do
+      expect(text).not_to match(/\$|trial|free|subscribe/i)
+    end
+  end
+
+  describe '#activate!' do
+    let(:team) { Fabricate(:team, active: false) }
+
+    before do
+      allow_any_instance_of(described_class).to receive(:update_info!)
+    end
+
+    it 'posts the welcome card to the team channel' do
+      expect(TeamsStrava::Bot.instance).to receive(:send_message).with(team.conversation_id, team.service_url, an_instance_of(Teams::Api::MessageActivity)) do |_, _, message|
+        expect(message.attachments.first['content'].to_h['body'].first['text']).to eq 'Welcome to Strata!'
+        Struct.new(:id, :conversation_id).new('welcome-id', team.conversation_id)
+      end
+      team.activate!
+    end
+  end
 end

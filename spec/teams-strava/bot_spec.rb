@@ -87,6 +87,41 @@ describe TeamsStrava::Bot do
     end
   end
 
+  describe '#handle_message!' do
+    let(:activity) do
+      Teams::Activity.new(
+        type: 'message',
+        text: '<at>Strata</at> stats',
+        recipient: { id: 'bot-id', name: 'Strata' },
+        from: { id: 'user-id', name: 'D B', aadObjectId: 'user-id' },
+        conversation: { id: 'conversation-id', conversationType: 'channel' },
+        serviceUrl: 'https://smba.trafficmanager.net/amer/',
+        channelData: { team: { id: 'team-id' } }
+      )
+    end
+    let(:ctx) { double('ctx', activity:) }
+
+    before do
+      allow_any_instance_of(TeamsStrava::Commands::Request).to receive(:command?).and_return(true)
+    end
+
+    it 'renders a message with embeds into a card' do
+      allow(TeamsStrava::Commands).to receive(:invoke!).and_return(content: 'Activities.', embeds: [{ title: 'Run', fields: [{ name: 'Distance', value: '1mi' }] }])
+      expect(ctx).to receive(:reply) do |message|
+        expect(message).to be_a(Teams::Api::MessageActivity)
+        expect(message.text).to eq 'Activities.'
+        expect(message.attachments.size).to eq 1
+      end
+      subject.send(:handle_message!, ctx)
+    end
+
+    it 'replies with plain text as is' do
+      allow(TeamsStrava::Commands).to receive(:invoke!).and_return('There are no activities in this channel.')
+      expect(ctx).to receive(:reply).with('There are no activities in this channel.')
+      subject.send(:handle_message!, ctx)
+    end
+  end
+
   describe '#handle_conversation_update!' do
     context 'when installed at team scope' do
       let(:activity) { activity_for(conversation_type: 'channel', team: 'team-id', members_added: [{ id: 'bot-id' }]) }

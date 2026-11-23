@@ -1,5 +1,6 @@
 ### Changelog
 
+* 2026/11/23: Add a captioned Teams mobile screenshot to the Store listing for Teams Store validation issue #6 ([#26](https://github.com/dblock/teams-strava/pull/26)) - [@dblock](https://github.com/dblock).
 * 2026/11/23: Keep pricing, trial notices, and payment links out of every Teams message, including Stripe subscription info, past due and cancellation notices, and the disabled expiry and trial reminders, so Stripe billing stays on the website under Teams Store policy 1140.4.8 ([#25](https://github.com/dblock/teams-strava/pull/25)) - [@dblock](https://github.com/dblock).
 * 2026/11/23: Complete Strava sign-up even when the Teams channel announcement fails, explain canceled authorizations, missing activity permission, and invalid connect links on the connect page, and escape request values in its script, for Teams Store validation issue #4 ([#23](https://github.com/dblock/teams-strava/pull/23)) - [@dblock](https://github.com/dblock).
 * 2026/11/23: Greet new team installations with a welcome Adaptive Card that explains what Strata does, how to get started, and its limitations, with get started, Strava sign-up, help, and support buttons, for Teams Store validation issue #9 ([#22](https://github.com/dblock/teams-strava/pull/22)) - [@dblock](https://github.com/dblock).

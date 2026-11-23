@@ -1,5 +1,6 @@
 ### Changelog
 
+* 2026/11/23: Complete Strava sign-up even when the Teams channel announcement fails, explain canceled authorizations, missing activity permission, and invalid connect links on the connect page, and escape request values in its script, for Teams Store validation issue #4 ([#23](https://github.com/dblock/teams-strava/pull/23)) - [@dblock](https://github.com/dblock).
 * 2026/11/23: Greet new team installations with a welcome Adaptive Card that explains what Strata does, how to get started, and its limitations, with get started, Strava sign-up, help, and support buttons, for Teams Store validation issue #9 ([#22](https://github.com/dblock/teams-strava/pull/22)) - [@dblock](https://github.com/dblock).
 * 2026/11/23: Remove trial expiry, pricing, and subscription links from bot replies and the Teams command menu while Strata is free in beta, for Teams Store validation issue #10 (mobile add-ins must be free); bump the manifest to 1.0.6 ([#21](https://github.com/dblock/teams-strava/pull/21)) - [@dblock](https://github.com/dblock).
 * 2026/11/20: Update rack to 3.2.9 and httparty to 0.25.0 ([#20](https://github.com/dblock/teams-strava/pull/20)) - [@dblock](https://github.com/dblock).

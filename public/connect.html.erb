@@ -4,9 +4,6 @@
     <title>Strata: Connect to Strava</title>
     <%= partial 'public/partials/_head.html.erb' %>
     <meta name="robots" content="noindex, nofollow">
-    <%
-      user = User.where(id: request.params['state']).first
-    %>
   </head>
   <body class="site-page">
     <%= partial 'public/partials/_navigation.html.erb' %>
@@ -18,30 +15,43 @@
       </div>
       <script>
         $(document).ready(function() {
-          <% user = User.where(id: request.params['state']).first %>
+          <%
+            user = User.where(id: request.params['state']).first
+          %>
 
+          // All request values are JSON-encoded (which escapes HTML) rather than interpolated raw.
+          var stravaError = <%= request.params['error'].to_s.to_json %>;
+          var scope = <%= request.params['scope'].to_json %>;
           var data = {
-            code: "<%= request.params['code'] %>"
+            code: <%= request.params['code'].to_s.to_json %>
           };
-
           var user = {
-            id: '<%= user && user.id %>',
-            name: '<%= user && user.user_name %>'
-          }
+            id: <%= (user && user.id.to_s).to_json %>,
+            name: $('<span>').text(<%= (user && user.user_name).to_s.to_json %>).html()
+          };
+          var tryAgain = ' Send <b>@Strata connect</b> in your Teams channel to get a new link and try again.';
 
-          if (user.id && data.code) {
+          if (stravaError == 'access_denied') {
+            TeamsStrava.errorMessage('Strava authorization was canceled, so your account was not connected.' + tryAgain + ' Click <b>Authorize</b> on Strava to share your activities.');
+          } else if (stravaError) {
+            TeamsStrava.errorMessage('Strava could not authorize Strata (' + $('<span>').text(stravaError).html() + ').' + tryAgain);
+          } else if (!user.id) {
+            TeamsStrava.errorMessage('This connect link is invalid or has expired.' + tryAgain);
+          } else if (!data.code) {
+            TeamsStrava.errorMessage('Strava did not return an authorization code.' + tryAgain);
+          } else if (scope !== null && $.inArray('activity:read_all', scope.split(',')) === -1) {
+            TeamsStrava.errorMessage('Strata needs permission to view your activities, so your account was not connected.' + tryAgain + ' On Strava, leave <b>View data about your private activities</b> checked.');
+          } else {
             TeamsStrava.message('Connecting <b>' + user.name + '</b> to Strava. This will take a minute.');
             $.ajax({
               type: 'PUT',
               url: '/api/users/' + user.id,
               data: data,
               success: function(data) {
-                TeamsStrava.message('Successfully connected <b>' + data.user_name + '</b> to Strava.<br>I will not post any private activities, use <b>@Strata set private on</b> to toggle that, and <b>@Strata help</b> for other options.<br><br>You can now return to Microsoft Teams.');
+                TeamsStrava.message('Successfully connected <b>' + $('<span>').text(data.user_name).html() + '</b> to Strava.<br>I will not post any private activities, use <b>@Strata set private on</b> to toggle that, and <b>@Strata help</b> for other options.<br><br>You can now return to Microsoft Teams.');
               },
               error: TeamsStrava.error
             });
-          } else {
-            TeamsStrava.errorMessage('Missing or invalid parameters.');
           }
         });
       </script>

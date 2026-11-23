@@ -25,6 +25,17 @@ describe Api::Endpoints::UsersEndpoint do
       expect(user.athlete.athlete_id).to eq '12345'
     end
 
+    it 'connects a user when the channel announcement fails', vcr: { cassette_name: 'strava/retrieve_access' } do
+      allow_any_instance_of(User).to receive(:dm!)
+      allow_any_instance_of(User).to receive(:inform!).and_raise(TeamsStrava::Error, 'Forbidden (403)')
+      expect(NewRelic::Agent).to receive(:notice_error).with(an_instance_of(TeamsStrava::Error), anything)
+
+      client.user(id: user.id)._put(code: 'code')
+
+      expect(user.reload.access_token).to eq 'token'
+      expect(user.connected_to_strava_at).not_to be_nil
+    end
+
     context 'with prior activities' do
       before do
         allow_any_instance_of(User).to receive(:inform!).and_return({ message_id: 'id', channel_id: 'C1' })

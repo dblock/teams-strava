@@ -10,7 +10,7 @@ module TeamsStrava
               # Beta: free for everyone, trial/subscription enforcement disabled.
               # if Stripe.api_key && command.team.reload.subscription_expired?
               #   logger.info "#{command}, subscribed feature required"
-              #   command.team.trial_message
+              #   command.team.paused_text
               # else
               yield command
               # end

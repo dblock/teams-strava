@@ -6,7 +6,7 @@ module TeamsStrava
 
       subscribe_command 'subscription' do |request|
         logger.info "SUBSCRIPTION: #{request}"
-        request.team.subscription_info(request.user.team_owner?)
+        request.team.subscription_info
       end
     end
   end

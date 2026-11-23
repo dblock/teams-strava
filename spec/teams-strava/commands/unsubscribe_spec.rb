@@ -71,7 +71,7 @@ describe TeamsStrava::Commands::Unsubscribe do
             end
 
             it 'displays that the subscription is already set to expire' do
-              expect(response).to eq "Subscription to Plan ($24.99) is already set to expire on #{current_period_end}, and will not auto-renew."
+              expect(response).to eq "Subscription to Plan is already set to expire on #{current_period_end}, and will not auto-renew."
             end
           end
         end
@@ -82,7 +82,7 @@ describe TeamsStrava::Commands::Unsubscribe do
           end
 
           it 'unsubscribes' do
-            expect(response).to eq "Successfully canceled auto-renew to Plan ($24.99), will expire on #{current_period_end}, and will not auto-renew."
+            expect(response).to eq "Successfully canceled auto-renew to Plan, will expire on #{current_period_end}, and will not auto-renew."
             team.reload
             expect(team.subscribed).to be true
             expect(team.stripe_customer_id).not_to be_nil

@@ -47,14 +47,11 @@ describe TeamsStrava::Commands::Subscription do
             allow_any_instance_of(User).to receive(:team_owner?).and_return(true)
           end
 
-          it 'displays subscription info' do
-            card = Stripe::Customer.list_sources(customer.id).first
+          it 'displays subscription info without amounts, cards, or payment links' do
             current_period_end = Time.at(customer.subscriptions.first.current_period_end).strftime('%B %d, %Y')
             customer_info = [
               "Customer since #{Time.at(customer.created).strftime('%B %d, %Y')}.",
-              "Subscribed to Plan ($24.99), will auto-renew on #{current_period_end}.",
-              "On file Visa card, #{card.name} ending with #{card.last4}, expires #{card.exp_month}/#{card.exp_year}.",
-              team.update_cc_text
+              "Subscribed to Plan, will auto-renew on #{current_period_end}."
             ].join("\n")
             expect(response).to eq customer_info
           end
@@ -67,14 +64,10 @@ describe TeamsStrava::Commands::Subscription do
               allow(Stripe::Subscription).to receive(:list).and_return([subscription])
             end
 
-            it 'displays subscription info' do
-              card = Stripe::Customer.list_sources(customer.id).first
-              Time.at(customer.subscriptions.first.current_period_end).strftime('%B %d, %Y')
+            it 'displays subscription info without asking to pay' do
               customer_info = [
                 "Customer since #{Time.at(customer.created).strftime('%B %d, %Y')}.",
-                "Past Due subscription created #{Time.at(customer.subscriptions.first.created).strftime('%B %d, %Y')} to Plan ($24.99).",
-                "On file Visa card, #{card.name} ending with #{card.last4}, expires #{card.exp_month}/#{card.exp_year}.",
-                team.update_cc_text
+                "Past Due subscription created #{Time.at(customer.subscriptions.first.created).strftime('%B %d, %Y')} to Plan."
               ].join("\n")
               expect(response).to eq customer_info
             end
@@ -90,7 +83,7 @@ describe TeamsStrava::Commands::Subscription do
             current_period_end = Time.at(customer.subscriptions.first.current_period_end).strftime('%B %d, %Y')
             customer_info = [
               "Customer since #{Time.at(customer.created).strftime('%B %d, %Y')}.",
-              "Subscribed to Plan ($24.99), will auto-renew on #{current_period_end}."
+              "Subscribed to Plan, will auto-renew on #{current_period_end}."
             ].join("\n")
             expect(response).to eq customer_info
           end

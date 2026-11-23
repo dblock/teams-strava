@@ -1,5 +1,6 @@
 ### Changelog
 
+* 2026/11/23: Fix `stats` failing in Teams with "Unknown activity type" by rendering command replies with embeds into a card ([#31](https://github.com/dblock/teams-strava/pull/31)) - [@dblock](https://github.com/dblock).
 * 2026/11/23: Show the official Connect with Strava button in the Store's connect screenshot ([#30](https://github.com/dblock/teams-strava/pull/30)) - [@dblock](https://github.com/dblock).
 * 2026/11/23: Follow the Strava brand guidelines in Teams: use the official Connect with Strava button and link back to Strava with "View on Strava" instead of linking activity titles and athlete names ([#28](https://github.com/dblock/teams-strava/pull/28)) - [@dblock](https://github.com/dblock).
 * 2026/11/23: Delete an athlete's tokens, stored activities, and profile when they revoke Strata's access on Strava, as the Strava API agreement requires ([#27](https://github.com/dblock/teams-strava/pull/27)) - [@dblock](https://github.com/dblock).

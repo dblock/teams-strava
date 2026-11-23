@@ -101,7 +101,9 @@ module TeamsStrava
       return unless request.command?
 
       result = TeamsStrava::Commands.invoke!(request)
-      ctx.reply(result) if result
+      # Commands return strings, activities, or {content:, embeds:} hashes
+      # (e.g. stats); hashes must be rendered into a card before sending.
+      ctx.reply(TeamsStrava::CardRenderer.render_message(result)) if result
     rescue TeamsStrava::Error => e
       logger.warn "[bot] error handling message: #{e.message}"
       ctx.reply(e.message)

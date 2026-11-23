@@ -51,6 +51,42 @@ describe Api::Endpoints::StravaEndpoint do
         expect(response['ok']).to be true
       end
 
+      context 'when an athlete revokes access' do
+        let!(:user) { Fabricate(:user, access_token: 'token', refresh_token: 'refresh', connected_to_strava_at: Time.now.utc) }
+        let!(:other_user) { Fabricate(:user, access_token: 'other-token') }
+        let(:deauthorization) do
+          event_data.merge(
+            object_type: 'athlete',
+            object_id: user.athlete.athlete_id.to_s,
+            owner_id: user.athlete.athlete_id.to_s,
+            updates: { authorized: 'false' }
+          )
+        end
+
+        before do
+          Fabricate(:user_activity, user:)
+        end
+
+        it 'deletes the athlete tokens and Strava data' do
+          post '/api/strava/event', JSON.dump(deauthorization), 'CONTENT_TYPE' => 'application/json'
+          expect(last_response.status).to eq 200
+          user.reload
+          expect(user.access_token).to be_nil
+          expect(user.refresh_token).to be_nil
+          expect(user.connected_to_strava_at).to be_nil
+          expect(user.athlete).to be_nil
+          expect(user.activities.count).to eq 0
+          expect(other_user.reload.access_token).to eq 'other-token'
+        end
+
+        it 'ignores other athlete updates' do
+          post '/api/strava/event', JSON.dump(deauthorization.merge(updates: { authorized: 'true' })), 'CONTENT_TYPE' => 'application/json'
+          expect(last_response.status).to eq 200
+          expect(user.reload.access_token).to eq 'token'
+          expect(user.activities.count).to eq 1
+        end
+      end
+
       context 'with a connected user' do
         let!(:user) { Fabricate(:user, access_token: 'token') }
 

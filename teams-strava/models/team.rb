@@ -230,6 +230,41 @@ class Team
     }.compact
   end
 
+  WELCOME_VALUE = 'Strata brings your running, cycling, and fitness group together in this channel. ' \
+                  'It shares new Strava activities with maps, stats, and weather, and keeps friendly competition going ' \
+                  'with leaderboards, without anyone having to share workouts by hand.'.freeze
+
+  WELCOME_STEPS = [
+    '1. @mention Strata in this channel and send **connect**.',
+    '2. Sign in to Strava and authorize Strata. A Strava account is required.',
+    '3. New activities are posted here automatically. Try **leaderboard**, **stats**, and **help**.'
+  ].freeze
+
+  WELCOME_LIMITATIONS = [
+    '- Works in Teams channels only, not in personal or group chats.',
+    '- Requires a Strava account. Strava sign-in and authorization take place outside Teams.',
+    '- Only activities created after you connect are shared. Private activities are not shared by default.',
+    '- Powered by Strava; not officially affiliated with Strava.'
+  ].freeze
+
+  def welcome_message
+    card = ::Teams::Cards::AdaptiveCard.new(
+      ::Teams::Cards::TextBlock.new('Welcome to Strata!', size: 'Large', weight: 'Bolder', wrap: true),
+      ::Teams::Cards::TextBlock.new(WELCOME_VALUE, wrap: true),
+      ::Teams::Cards::TextBlock.new('Get started', weight: 'Bolder', wrap: true),
+      ::Teams::Cards::TextBlock.new(WELCOME_STEPS.join("\n\n"), wrap: true),
+      ::Teams::Cards::TextBlock.new('Limitations', weight: 'Bolder', wrap: true),
+      ::Teams::Cards::TextBlock.new(WELCOME_LIMITATIONS.join("\n"), wrap: true),
+      actions: [
+        ::Teams::Cards::OpenUrlAction.new(title: 'Get Started', url: "#{TeamsStrava::Service.url}/help.html#get-started"),
+        ::Teams::Cards::OpenUrlAction.new(title: 'Sign Up for Strava', url: 'https://www.strava.com/register'),
+        ::Teams::Cards::OpenUrlAction.new(title: 'Help', url: "#{TeamsStrava::Service.url}/help.html"),
+        ::Teams::Cards::OpenUrlAction.new(title: 'Contact Support', url: "#{TeamsStrava::Service.url}/help.html#support")
+      ]
+    )
+    ::Teams::Api::MessageActivity.new.add_card(card)
+  end
+
   def inform_system!(message)
     return unless conversation_id
 
@@ -596,13 +631,6 @@ class Team
     inform_everyone!(subscribed_text)
   end
 
-  def activated_text
-    <<~EOS
-      Welcome to Strata!
-      @mention me and type *connect* to connect your Strava account to a Teams channel.
-    EOS
-  end
-
   def activated!
     return unless active? && (active_changed? || saved_change_to_active?)
 
@@ -611,7 +639,7 @@ class Team
   end
 
   def inform_activated!
-    inform_system!(activated_text)
+    inform_system!(welcome_message)
   end
 
   def update_subscribed_at

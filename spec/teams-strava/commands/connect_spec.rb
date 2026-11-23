@@ -13,7 +13,7 @@ describe TeamsStrava::Commands::Connect do
       content = response.to_h.dig('attachments', 0, 'content')
       expect(content['type']).to eq 'AdaptiveCard'
       expect(content['body'].first).to include('type' => 'TextBlock', 'text' => 'Please connect your Strava account.')
-      expect(content['actions'].first).to include('type' => 'Action.OpenUrl', 'title' => 'Connect!', 'url' => url)
+      expect(content['body'][1]['selectAction']).to include('type' => 'Action.OpenUrl', 'url' => url)
     end
 
     context 'subscribed team' do
@@ -24,7 +24,7 @@ describe TeamsStrava::Commands::Connect do
         content = response.to_h.dig('attachments', 0, 'content')
         expect(content['type']).to eq 'AdaptiveCard'
         expect(content['body'].first).to include('type' => 'TextBlock', 'text' => 'Please connect your Strava account.')
-        expect(content['actions'].first).to include('type' => 'Action.OpenUrl', 'title' => 'Connect!', 'url' => url)
+        expect(content['body'][1]['selectAction']).to include('type' => 'Action.OpenUrl', 'url' => url)
       end
     end
 
@@ -37,7 +37,7 @@ describe TeamsStrava::Commands::Connect do
       it 'still connects a user' do
         expect(response).to be_a(Teams::Api::MessageActivity)
         content = response.to_h.dig('attachments', 0, 'content')
-        expect(content['actions'].first).to include('type' => 'Action.OpenUrl', 'title' => 'Connect!', 'url' => url)
+        expect(content['body'][1]['selectAction']).to include('type' => 'Action.OpenUrl', 'url' => url)
       end
     end
   end

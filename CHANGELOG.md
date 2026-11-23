@@ -1,5 +1,6 @@
 ### Changelog
 
+* 2026/11/23: Follow the Strava brand guidelines in Teams: use the official Connect with Strava button and link back to Strava with "View on Strava" instead of linking activity titles and athlete names ([#28](https://github.com/dblock/teams-strava/pull/28)) - [@dblock](https://github.com/dblock).
 * 2026/11/23: Delete an athlete's tokens, stored activities, and profile when they revoke Strata's access on Strava, as the Strava API agreement requires ([#27](https://github.com/dblock/teams-strava/pull/27)) - [@dblock](https://github.com/dblock).
 * 2026/11/23: Add a captioned Teams mobile screenshot to the Store listing for Teams Store validation issue #6 ([#26](https://github.com/dblock/teams-strava/pull/26)) - [@dblock](https://github.com/dblock).
 * 2026/11/23: Keep pricing, trial notices, and payment links out of every Teams message, including Stripe subscription info, past due and cancellation notices, and the disabled expiry and trial reminders, so Stripe billing stays on the website under Teams Store policy 1140.4.8 ([#25](https://github.com/dblock/teams-strava/pull/25)) - [@dblock](https://github.com/dblock).

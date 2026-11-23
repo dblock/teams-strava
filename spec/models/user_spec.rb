@@ -567,7 +567,14 @@ describe User do
           expect(message).to be_a(Teams::Api::MessageActivity)
           content = message.to_h.dig('attachments', 0, 'content')
           expect(content['body'].first).to include('type' => 'TextBlock', 'text' => 'Please connect your Strava account.')
-          expect(content['actions'].first).to include('type' => 'Action.OpenUrl', 'title' => 'Connect!', 'url' => url)
+          expect(content['body'][1]['selectAction']).to include('type' => 'Action.OpenUrl', 'url' => url)
+          expect(content['body'][1]).to include(
+            'type' => 'Image',
+            'url' => 'https://strata.playplay.io/img/btn_strava_connect_with_orange_x2.png',
+            'altText' => 'Connect with Strava',
+            'height' => '48px'
+          )
+          expect(content['actions']).to be_nil
         end
 
         user.dm_connect!
@@ -578,7 +585,7 @@ describe User do
           expect(message).to be_a(Teams::Api::MessageActivity)
           content = message.to_h.dig('attachments', 0, 'content')
           expect(content['body'].first).to include('text' => 'Please reconnect your account.')
-          expect(content['actions'].first).to include('url' => url)
+          expect(content['body'][1]['selectAction']).to include('url' => url)
         end
 
         user.dm_connect!('Please reconnect your account.')

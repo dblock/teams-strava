@@ -48,17 +48,18 @@ module TeamsStrava
       image_url = embed.dig(:image, :url) || embed.dig(:thumbnail, :url)
       body << ::Teams::Cards::Image.new(url: image_url, size: 'Stretch') if image_url
 
+      # Strava brand guidelines: links back to Strava data must read "View on Strava".
+      body << ::Teams::Cards::TextBlock.new("**[View on Strava](#{embed[:url]})**", wrap: true) if embed[:url]
+
       body
     end
 
     def title_block(embed)
-      text = embed[:url] ? "[#{embed[:title]}](#{embed[:url]})" : embed[:title].to_s
-      ::Teams::Cards::TextBlock.new(text, size: 'Medium', weight: 'Bolder', wrap: true)
+      ::Teams::Cards::TextBlock.new(embed[:title].to_s, size: 'Medium', weight: 'Bolder', wrap: true)
     end
 
     def author_blocks(author)
-      text = author[:url] ? "[#{author[:name]}](#{author[:url]})" : author[:name].to_s
-      [::Teams::Cards::TextBlock.new(text, weight: 'Bolder', wrap: true)]
+      [::Teams::Cards::TextBlock.new(author[:name].to_s, weight: 'Bolder', wrap: true)]
     end
 
     def embed_facts(fields)
